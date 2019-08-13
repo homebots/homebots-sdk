@@ -20,7 +20,7 @@ A million repetitions of "a"
 
 #if !defined(ESP8266) && !defined(ESP32)
 
-#define SHA1HANDSOFF
+// #define SHA1HANDSOFF
 
 #include <stdio.h>
 #include <string.h>
@@ -28,6 +28,9 @@ A million repetitions of "a"
 
 #include "libsha1.h"
 
+#define LITTLE_ENDIAN 1
+#define BIG_ENDIAN 2
+#define BYTE_ORDER LITTLE_ENDIAN
 
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
@@ -70,7 +73,8 @@ void SHA1Transform(uint32_t state[5], const unsigned char buffer[64])
      * And the result is written through.  I threw a "const" in, hoping
      * this will cause a diagnostic.
      */
-    CHAR64LONG16* block = (const CHAR64LONG16*)buffer;
+    CHAR64LONG16* block = (CHAR64LONG16*)buffer;
+    // CHAR64LONG16* block = (const CHAR64LONG16*)buffer;
 #endif
     /* Copy context->state[] to working vars */
     a = state[0];

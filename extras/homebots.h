@@ -9,13 +9,8 @@ extern "C" {
 #define SERIAL_SPEED 115200
 #endif
 
-#ifndef DEBUG
-#define DEBUG(...)
-#endif
-
 #include "sdk.h"
 
-#define loopTaskPriority        0
 #define loopTaskQueueLength     1
 
 extern void loop();
@@ -24,7 +19,7 @@ extern void setup();
 os_event_t executionQueue[loopTaskQueueLength];
 
 void tick() {
-  system_os_post(loopTaskPriority, 0, 0);
+  system_os_post(USER_TASK_PRIO_0, 0, 0);
 }
 
 static void ICACHE_FLASH_ATTR
@@ -39,7 +34,7 @@ user_init() {
   gpio_init();
   setup();
 
-  system_os_task(user_loop, loopTaskPriority, executionQueue, loopTaskQueueLength);
+  system_os_task(user_loop, USER_TASK_PRIO_0, executionQueue, loopTaskQueueLength);
   tick();
 }
 
