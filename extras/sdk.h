@@ -9,8 +9,13 @@
 
 #include "c_types.h"
 #include "gpio.h"
+#include "pins.h"
 #include "osapi.h"
+#include "mem.h"
+#include "time.h"
 #include "user_interface.h"
+#include "string-extras.h"
+#include "task.h"
 
 typedef unsigned char byte;
 

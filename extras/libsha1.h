@@ -1,11 +1,5 @@
-/* ================ sha1.h ================ */
-/*
-SHA-1 in C
-By Steve Reid <steve@edmweb.com>
-100% Public Domain
-*/
-
-#if !defined(ESP8266) && !defined(ESP32)
+#ifndef _ESP_SHA_
+#define _ESP_SHA_
 
 typedef struct {
     uint32_t state[5];

@@ -38,31 +38,18 @@ extern "C" {
 #include "stdarg.h"
 #include "c_types.h"
 #include "websocket.h"
+#include "string-extras.h"
 
 #ifndef DEBUG
-#define DEBUG(...) os_printf(__VA_ARGS__)
+// #define DEBUG(...) os_printf(__VA_ARGS__)
+#define DEBUG(...)
 #endif
 
 #define espconn_secure_disconnect espconn_disconnect
 #define espconn_secure_send espconn_send
 #define espconn_secure_connect espconn_connect
 
-// Depends on 'crypto' module for sha1
-// #include "../crypto/digests.h"
-// #include "../crypto/mech.h"
-// #include "pm/swtimer.h"
 #include "libsha1.h"
-
-char* copyString(const char *c) {
-  int len = os_strlen(c) + 1;
-  char *ret = (char*)os_malloc(len);
-
-  if (ret) {
-    memcpy(ret, c, len);
-  }
-
-  return ret;
-}
 
 #define PROTOCOL_SECURE "wss://"
 #define PROTOCOL_INSECURE "ws://"

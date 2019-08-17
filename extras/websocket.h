@@ -89,8 +89,8 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *wsInfo, const char *url);
 void ICACHE_FLASH_ATTR ws_send(ws_info *wsInfo, int opCode, const char *message, unsigned short length);
 void ICACHE_FLASH_ATTR ws_close(ws_info *wsInfo);
 
-#endif // _WEBSOCKET_H_
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif // _WEBSOCKET_H_

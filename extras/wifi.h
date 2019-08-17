@@ -7,6 +7,12 @@ extern "C" {
 
 #include "sdk.h"
 
+#ifndef DEBUG
+// #define DEBUG(...) os_printf(__VA_ARGS__)
+#define DEBUG(...)
+#endif
+
+
 class Wifi {
   public:
     void connectTo(const char* ssid, const char *password);
@@ -38,19 +44,19 @@ bool Wifi::isConnected() {
 void Wifi::printStatus() {
   switch (wifi_station_get_connect_status()) {
     case STATION_CONNECTING:
-      os_printf("WIFI: Connecting\n");
+      DEBUG("WIFI: Connecting\n");
       break;
     case STATION_WRONG_PASSWORD:
-      os_printf("WIFI: Wrong pasword\n");
+      DEBUG("WIFI: Wrong pasword\n");
       break;
     case STATION_NO_AP_FOUND:
-      os_printf("WIFI: AP not found yet\n");
+      DEBUG("WIFI: AP not found yet\n");
       break;
     case STATION_CONNECT_FAIL:
-      os_printf("WIFI: Failed\n");
+      DEBUG("WIFI: Failed\n");
       break;
     case STATION_GOT_IP:
-      os_printf("WIFI: Connected\n");
+      DEBUG("WIFI: Connected\n");
       break;
   }
 }
