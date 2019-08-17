@@ -32,7 +32,11 @@
 #define WS_OPCODE_PING 0x9
 #define WS_OPCODE_PONG 0xA
 
-#define CS_CONNECTED      3
+#define CS_INITIAL           0
+#define CS_CLOSED            1
+#define CS_CONNECTING        2
+#define CS_CONNECTED         3
+#define CS_CLOSING           4
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,12 +9,13 @@ extern "C" {
 #define SNTP_INTERVAL 6000000
 #endif
 
-#include "sdk.h"
 #include "sntp.h"
 
-char ntpServer1[] = "0.pool.ntp.org";
-char ntpServer2[] = "1.pool.ntp.org";
-char ntpServer3[] = "2.pool.ntp.org";
+#ifndef NTP_SERVER_1
+#define NTP_SERVER_1 (char*)"0.pool.ntp.org"
+#define NTP_SERVER_2 (char*)"1.pool.ntp.org"
+#define NTP_SERVER_3 (char*)"2.pool.ntp.org"
+#endif
 
 class NTP {
   bool stopped;
@@ -31,9 +32,9 @@ class NTP {
 void NTP::start() {
   this->stopped = false;
   sntp_init();
-  sntp_setservername(0, (char*)ntpServer1);
-  sntp_setservername(1, (char*)ntpServer2);
-  sntp_setservername(2, (char*)ntpServer3);
+  sntp_setservername(0, NTP_SERVER_1);
+  sntp_setservername(1, NTP_SERVER_2);
+  sntp_setservername(2, NTP_SERVER_3);
 }
 
 void NTP::stop() {

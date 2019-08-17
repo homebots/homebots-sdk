@@ -182,12 +182,10 @@ skip:;
 }
 
 static void ICACHE_FLASH_ATTR ws_closeSentCallback(void *arg) {
-  DEBUG("ws_closeSentCallback \n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
   if (ws == NULL) {
-    DEBUG("ws is unexpectly null\n");
     return;
   }
 
@@ -203,10 +201,9 @@ static void ICACHE_FLASH_ATTR ws_sendFrame(struct espconn *conn, int opCode, con
   DEBUG("ws_sendFrame %d %d\n", opCode, len);
   ws_info *ws = (ws_info *) conn->reverse;
 
-  if (ws->connectionState == 4) {
-    DEBUG("already in closing state\n");
+  if (ws->connectionState == CS_CLOSING) {
     return;
-  } else if (ws->connectionState != 3) {
+  } else if (ws->connectionState != CS_CONNECTED) {
     DEBUG("can't send message while not in a connected state\n");
     return;
   }
@@ -261,18 +258,6 @@ static void ICACHE_FLASH_ATTR ws_sendFrame(struct espconn *conn, int opCode, con
   }
   bufOffset += len;
 
-  DEBUG("b[0] = %d \n", b[0]);
-  DEBUG("b[1] = %d \n", b[1]);
-  DEBUG("b[2] = %d \n", b[2]);
-  DEBUG("b[3] = %d \n", b[3]);
-  DEBUG("b[4] = %d \n", b[4]);
-  DEBUG("b[5] = %d \n", b[5]);
-  DEBUG("b[6] = %d \n", b[6]);
-  DEBUG("b[7] = %d \n", b[7]);
-  DEBUG("b[8] = %d \n", b[8]);
-  DEBUG("b[9] = %d \n", b[9]);
-
-  DEBUG("sending message\n");
   if (ws->isSecure)
     espconn_secure_send(conn, (uint8_t *) b, bufOffset);
   else
@@ -282,7 +267,6 @@ static void ICACHE_FLASH_ATTR ws_sendFrame(struct espconn *conn, int opCode, con
 }
 
 static void ICACHE_FLASH_ATTR ws_sendPingTimeout(void *arg) {
-  DEBUG("ws_sendPingTimeout \n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
@@ -302,7 +286,6 @@ static void ICACHE_FLASH_ATTR ws_sendPingTimeout(void *arg) {
 }
 
 static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned short len) {
-  DEBUG("ws_receiveCallback %d \n", len);
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
@@ -486,19 +469,19 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
         payload[payloadLength - extensionDataOffset] = '\0';
       }
 
-      DEBUG("isFin %d \n", isFin);
-      DEBUG("opCode %d \n", opCode);
-      DEBUG("hasMask %d \n", hasMask);
-      DEBUG("payloadLength %d \n", payloadLength);
-      DEBUG("len %d \n", len);
-      DEBUG("bufOffset %d \n", bufOffset);
+      // DEBUG("isFin %d \n", isFin);
+      // DEBUG("opCode %d \n", opCode);
+      // DEBUG("hasMask %d \n", hasMask);
+      // DEBUG("payloadLength %d \n", payloadLength);
+      // DEBUG("len %d \n", len);
+      // DEBUG("bufOffset %d \n", bufOffset);
 
       if (opCode == WS_OPCODE_CLOSE) {
         DEBUG("Closing message: %s\n", payload); // Must not be shown to client as per spec
 
         espconn_regist_sentcb(conn, ws_closeSentCallback);
         ws_sendFrame(conn, WS_OPCODE_CLOSE, (const char *) (b + bufOffset), (unsigned short) payloadLength);
-        ws->connectionState = 4;
+        ws->connectionState = CS_CLOSING;
       } else if (opCode == WS_OPCODE_PING) {
         ws_sendFrame(conn, WS_OPCODE_PONG, (const char *) (b + bufOffset), (unsigned short) payloadLength);
       } else if (opCode == WS_OPCODE_PONG) {
@@ -596,7 +579,8 @@ static void connect_callback(void *arg) {
   DEBUG("Connected\n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
-  ws->connectionState = 3;
+
+  ws->connectionState = CS_CONNECTED;
 
   espconn_regist_recvcb(conn, ws_initReceiveCallback);
 
@@ -627,7 +611,6 @@ static void connect_callback(void *arg) {
   len = sprintf_headers(buf + len, headers, extraHeaders, DEFAULT_HEADERS, 0) - buf;
 
   os_free(key);
-  DEBUG("request: %s", buf);
   if (ws->isSecure)
     espconn_secure_send(conn, (uint8_t *) buf, len);
   else
@@ -635,17 +618,12 @@ static void connect_callback(void *arg) {
 }
 
 static void disconnect_callback(void *arg) {
-  DEBUG("disconnect_callback\n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
-  ws->connectionState = 4;
-
+  ws->connectionState = CS_CLOSING;
   os_timer_disarm(&ws->timeoutTimer);
-
-  DEBUG("ws->hostname %d\n", ws->hostname);
   os_free(ws->hostname);
-  DEBUG("ws->path %d\n ", ws->path);
   os_free(ws->path);
 
   if (ws->expectedSecKey != NULL) {
@@ -664,10 +642,7 @@ static void disconnect_callback(void *arg) {
     os_free(conn->proto.tcp);
   }
 
-  DEBUG("conn %d\n", conn);
   espconn_delete(conn);
-
-  DEBUG("freeing conn1 \n");
 
   os_free(conn);
   ws->conn = NULL;
@@ -679,7 +654,6 @@ static void disconnect_callback(void *arg) {
 }
 
 static void ICACHE_FLASH_ATTR ws_connectTimeout(void *arg) {
-  DEBUG("ws_connectTimeout\n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
@@ -688,7 +662,6 @@ static void ICACHE_FLASH_ATTR ws_connectTimeout(void *arg) {
 }
 
 static void ICACHE_FLASH_ATTR error_callback(void * arg, sint8 errType) {
-  DEBUG("error_callback %d\n", errType);
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
@@ -697,12 +670,11 @@ static void ICACHE_FLASH_ATTR error_callback(void * arg, sint8 errType) {
 }
 
 static void ICACHE_FLASH_ATTR dns_callback(const char *hostname, ip_addr_t *addr, void *arg) {
-  DEBUG("dns_callback\n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
-  if (ws->conn == NULL || ws->connectionState == 4) {
-          return;
+  if (ws->conn == NULL || ws->connectionState == CS_CLOSING) {
+    return;
   }
 
   if (addr == NULL)  {
@@ -711,7 +683,7 @@ static void ICACHE_FLASH_ATTR dns_callback(const char *hostname, ip_addr_t *addr
     return;
   }
 
-  ws->connectionState = 2;
+  ws->connectionState = CS_CONNECTING;
 
   os_memcpy(conn->proto.tcp->remote_ip, addr, 4);
 
@@ -722,15 +694,12 @@ static void ICACHE_FLASH_ATTR dns_callback(const char *hostname, ip_addr_t *addr
   // Set connection timeout timer
   os_timer_disarm(&ws->timeoutTimer);
   os_timer_setfn(&ws->timeoutTimer, (os_timer_func_t *) ws_connectTimeout, conn);
-  // SWTIMER_REG_CB(ws_connectTimeout, SWTIMER_RESUME)
   os_timer_arm(&ws->timeoutTimer, WS_CONNECT_TIMEOUT_MS, false);
 
   if (ws->isSecure) {
-    DEBUG("secure connecting \n");
     espconn_secure_connect(conn);
   }
   else {
-    DEBUG("insecure connecting \n");
     espconn_connect(conn);
   }
 
@@ -738,26 +707,20 @@ static void ICACHE_FLASH_ATTR dns_callback(const char *hostname, ip_addr_t *addr
 }
 
 void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
-  DEBUG("ws_connect called\n");
-
   if (ws == NULL) {
-    DEBUG("ws_connect ws_info argument is null!");
     return;
   }
 
   if (url == NULL) {
-    DEBUG("url is null!");
     return;
   }
 
-  // Extract protocol - either ws or wss
   bool isSecure = os_strncmp(url, PROTOCOL_SECURE, strlen(PROTOCOL_SECURE)) == 0;
 
   if (isSecure) {
     url += strlen(PROTOCOL_SECURE);
   } else {
     if (os_strncmp(url, PROTOCOL_INSECURE, strlen(PROTOCOL_INSECURE)) != 0) {
-      DEBUG("Failed to extract protocol from: %s\n", url);
       if (ws->onFailure) ws->onFailure(ws, -1);
       return;
     }
@@ -805,13 +768,9 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
     return;
   }
 
-  DEBUG("secure protocol = %d\n", isSecure);
-  DEBUG("hostname = %s\n", hostname);
-  DEBUG("port = %d\n", port);
-  DEBUG("path = %s\n", path);
+  DEBUG("secure protocol = %d\n %s:%d/%s", isSecure, hostname, port, path);
 
-  // Prepare internal ws_info
-  ws->connectionState = 1;
+  ws->connectionState = CS_CLOSED;
   ws->isSecure = isSecure;
   ws->hostname = copyString(hostname);
   ws->port = port;
@@ -825,7 +784,6 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
   ws->payloadOriginalOpCode = 0;
   ws->unhealthyPoints = 0;
 
-  // Prepare espconn
   struct espconn *conn = (struct espconn *) os_zalloc(sizeof(struct espconn));
   conn->type = ESPCONN_TCP;
   conn->state = ESPCONN_NONE;
@@ -836,21 +794,17 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
   conn->reverse = ws;
   ws->conn = conn;
 
-  // Attempt to resolve hostname address
   ip_addr_t  addr;
   err_t result = espconn_gethostbyname(conn, hostname, &addr, dns_callback);
 
   if (result == ESPCONN_INPROGRESS) {
-    DEBUG("DNS pending\n");
   } else {
     dns_callback(hostname, &addr, conn);
   }
-
-  return;
 }
 
 void ws_send(ws_info *ws, int opCode, const char *message, unsigned short length) {
-  DEBUG("ws_send\n");
+  DEBUG("ws_send %d\n", length);
   ws_sendFrame(ws->conn, opCode, message, length);
 }
 
@@ -859,7 +813,7 @@ static void ICACHE_FLASH_ATTR ws_forceCloseTimeout(void *arg) {
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
-  if (ws->connectionState == 0 || ws->connectionState == 4) {
+  if (ws->connectionState == CS_INITIAL || ws->connectionState == CS_CLOSING) {
     return;
   }
 
@@ -872,19 +826,18 @@ static void ICACHE_FLASH_ATTR ws_forceCloseTimeout(void *arg) {
 void ICACHE_FLASH_ATTR ws_close(ws_info *ws) {
   DEBUG("ws_close\n");
 
-  if (ws->connectionState == 0 || ws->connectionState == 4) {
+  if (ws->connectionState == CS_INITIAL || ws->connectionState == CS_CLOSING) {
     return;
   }
 
   ws->knownFailureCode = 0; // no error as user requested to close
-  if (ws->connectionState == 1) {
+  if (ws->connectionState == CS_CLOSED) {
     disconnect_callback(ws->conn);
   } else {
     ws_sendFrame(ws->conn, WS_OPCODE_CLOSE, NULL, 0);
 
     os_timer_disarm(&ws->timeoutTimer);
     os_timer_setfn(&ws->timeoutTimer, (os_timer_func_t *) ws_forceCloseTimeout, ws->conn);
-    // SWTIMER_REG_CB(ws_forceCloseTimeout, SWTIMER_RESUME);
     os_timer_arm(&ws->timeoutTimer, WS_FORCE_CLOSE_TIMEOUT_MS, false);
   }
 }
