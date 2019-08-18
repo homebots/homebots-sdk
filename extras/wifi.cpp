@@ -9,11 +9,6 @@ extern "C" {
 #include "user_interface.h"
 #include "wifi.h"
 
-// #ifndef DEBUG
-// #define DEBUG(...) os_printf(__VA_ARGS__)
-// #define DEBUG(...)
-// #endif
-
 void Wifi::connectTo(const char* ssid, const char *password) {
   station_config wifiConfiguration;
   os_memcpy(wifiConfiguration.ssid, ssid, 32);
@@ -36,19 +31,19 @@ bool  Wifi::isConnected() {
 void  Wifi::printStatus() {
   switch (wifi_station_get_connect_status()) {
     case STATION_CONNECTING:
-      DEBUG("WIFI: Connecting\n");
+      LOG("WIFI: Connecting\n");
       break;
     case STATION_WRONG_PASSWORD:
-      DEBUG("WIFI: Wrong pasword\n");
+      LOG("WIFI: Wrong pasword\n");
       break;
     case STATION_NO_AP_FOUND:
-      DEBUG("WIFI: AP not found yet\n");
+      LOG("WIFI: AP not found yet\n");
       break;
     case STATION_CONNECT_FAIL:
-      DEBUG("WIFI: Failed\n");
+      LOG("WIFI: Failed\n");
       break;
     case STATION_GOT_IP:
-      DEBUG("WIFI: Connected\n");
+      LOG("WIFI: Connected\n");
       break;
   }
 }

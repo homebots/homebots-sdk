@@ -39,11 +39,7 @@ extern "C" {
 #include "c_types.h"
 #include "websocket.h"
 #include "string-extras.h"
-
-#ifndef DEBUG
-// #define DEBUG(...) os_printf(__VA_ARGS__)
-#define DEBUG(...)
-#endif
+#include "serial-debug.h"
 
 #define espconn_secure_disconnect espconn_disconnect
 #define espconn_secure_send espconn_send
@@ -198,19 +194,19 @@ static void ICACHE_FLASH_ATTR ws_closeSentCallback(void *arg) {
 }
 
 static void ICACHE_FLASH_ATTR ws_sendFrame(struct espconn *conn, int opCode, const char *data, unsigned short len) {
-  DEBUG("ws_sendFrame %d %d\n", opCode, len);
+  LOG("ws_sendFrame %d %d\n", opCode, len);
   ws_info *ws = (ws_info *) conn->reverse;
 
   if (ws->connectionState == CS_CLOSING) {
     return;
   } else if (ws->connectionState != CS_CONNECTED) {
-    DEBUG("can't send message while not in a connected state\n");
+    LOG("can't send message while not in a connected state\n");
     return;
   }
 
   char *b = (char*)os_zalloc(10 + len); // 10 bytes = worst case scenario for framming
   if (b == NULL) {
-    DEBUG("Out of memory when receiving message, disconnecting...\n");
+    LOG("Out of memory when receiving message, disconnecting...\n");
 
     ws->knownFailureCode = -16;
     if (ws->isSecure)
@@ -295,11 +291,11 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
 
   char *b = buf;
   if (ws->frameBuffer != NULL) { // Append previous frameBuffer with new content
-    DEBUG("Appending new frameBuffer to old one \n");
+    LOG("Appending new frameBuffer to old one \n");
 
     ws->frameBuffer = (char*)os_realloc(ws->frameBuffer, ws->frameBufferLen + len);
     if (ws->frameBuffer == NULL) {
-      DEBUG("Failed to allocate new framebuffer, disconnecting...\n");
+      LOG("Failed to allocate new framebuffer, disconnecting...\n");
 
       ws->knownFailureCode = -8;
       if (ws->isSecure)
@@ -314,18 +310,18 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
 
     len = ws->frameBufferLen;
     b = ws->frameBuffer;
-    DEBUG("New frameBufferLen: %d\n", len);
+    LOG("New frameBufferLen: %d\n", len);
   }
 
   while (b != NULL) { // several frames can be present, b pointer will be moved to the next frame
-    DEBUG("b[0] = %d \n", b[0]);
-    DEBUG("b[1] = %d \n", b[1]);
-    DEBUG("b[2] = %d \n", b[2]);
-    DEBUG("b[3] = %d \n", b[3]);
-    DEBUG("b[4] = %d \n", b[4]);
-    DEBUG("b[5] = %d \n", b[5]);
-    DEBUG("b[6] = %d \n", b[6]);
-    DEBUG("b[7] = %d \n", b[7]);
+    LOG("b[0] = %d \n", b[0]);
+    LOG("b[1] = %d \n", b[1]);
+    LOG("b[2] = %d \n", b[2]);
+    LOG("b[3] = %d \n", b[3]);
+    LOG("b[4] = %d \n", b[4]);
+    LOG("b[5] = %d \n", b[5]);
+    LOG("b[6] = %d \n", b[6]);
+    LOG("b[7] = %d \n", b[7]);
 
     int isFin = b[0] & 0x80 ? 1 : 0;
     int opCode = b[0] & 0x0f;
@@ -351,12 +347,12 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
     }
 
     if (payloadLength > len - bufOffset) {
-      DEBUG("INCOMPLETE Frame \n");
+      LOG("INCOMPLETE Frame \n");
       if (ws->frameBuffer == NULL) {
-        DEBUG("Allocing new frameBuffer \n");
+        LOG("Allocing new frameBuffer \n");
         ws->frameBuffer = (char*)os_zalloc(len);
         if (ws->frameBuffer == NULL) {
-          DEBUG("Failed to allocate framebuffer, disconnecting... \n");
+          LOG("Failed to allocate framebuffer, disconnecting... \n");
 
           ws->knownFailureCode = -9;
           if (ws->isSecure)
@@ -372,12 +368,12 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
     }
 
     if (!isFin) {
-      DEBUG("PARTIAL frame! Should concat payload and later restore opcode\n");
+      LOG("PARTIAL frame! Should concat payload and later restore opcode\n");
       if(ws->payloadBuffer == NULL) {
-        DEBUG("Allocing new payloadBuffer \n");
+        LOG("Allocing new payloadBuffer \n");
         ws->payloadBuffer = (char*)os_zalloc(payloadLength);
         if (ws->payloadBuffer == NULL) {
-          DEBUG("Failed to allocate payloadBuffer, disconnecting...\n");
+          LOG("Failed to allocate payloadBuffer, disconnecting...\n");
 
           ws->knownFailureCode = -10;
           if (ws->isSecure)
@@ -390,10 +386,10 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
         ws->frameBufferLen = payloadLength;
         ws->payloadOriginalOpCode = opCode;
       } else {
-        DEBUG("Appending new payloadBuffer to old one \n");
+        LOG("Appending new payloadBuffer to old one \n");
         ws->payloadBuffer = (char*)os_realloc(ws->payloadBuffer, ws->payloadBufferLen + payloadLength);
         if (ws->payloadBuffer == NULL) {
-          DEBUG("Failed to allocate new framebuffer, disconnecting...\n");
+          LOG("Failed to allocate new framebuffer, disconnecting...\n");
 
           ws->knownFailureCode = -11;
           if (ws->isSecure)
@@ -409,9 +405,9 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
     } else {
       char *payload;
       if (opCode == WS_OPCODE_CONTINUATION) {
-        DEBUG("restoring original opcode\n");
+        LOG("restoring original opcode\n");
         if (ws->payloadBuffer == NULL) {
-          DEBUG("Got FIN continuation frame but didn't receive any beforehand, disconnecting...\n");
+          LOG("Got FIN continuation frame but didn't receive any beforehand, disconnecting...\n");
 
           ws->knownFailureCode = -15;
           if (ws->isSecure)
@@ -424,7 +420,7 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
         payload = (char*)os_zalloc(ws->payloadBufferLen + payloadLength);
 
         if (payload == NULL) {
-          DEBUG("Failed to allocate new framebuffer, disconnecting...\n");
+          LOG("Failed to allocate new framebuffer, disconnecting...\n");
 
           ws->knownFailureCode = -12;
           if (ws->isSecure)
@@ -449,13 +445,13 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
 
         if (opCode == WS_OPCODE_CLOSE && payloadLength > 0) {
           unsigned int reasonCode = b[bufOffset] << 8 + b[bufOffset + 1];
-          DEBUG("Closing due to: %d\n", reasonCode); // Must not be shown to client as per spec
+          LOG("Closing due to: %d\n", reasonCode); // Must not be shown to client as per spec
           extensionDataOffset += 2;
         }
 
         payload = (char*)os_zalloc(payloadLength - extensionDataOffset + 1);
         if (payload == NULL) {
-          DEBUG("Failed to allocate payload, disconnecting...\n");
+          LOG("Failed to allocate payload, disconnecting...\n");
 
           ws->knownFailureCode = -13;
           if (ws->isSecure)
@@ -469,15 +465,15 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
         payload[payloadLength - extensionDataOffset] = '\0';
       }
 
-      // DEBUG("isFin %d \n", isFin);
-      // DEBUG("opCode %d \n", opCode);
-      // DEBUG("hasMask %d \n", hasMask);
-      // DEBUG("payloadLength %d \n", payloadLength);
-      // DEBUG("len %d \n", len);
-      // DEBUG("bufOffset %d \n", bufOffset);
+      // LOG("isFin %d \n", isFin);
+      // LOG("opCode %d \n", opCode);
+      // LOG("hasMask %d \n", hasMask);
+      // LOG("payloadLength %d \n", payloadLength);
+      // LOG("len %d \n", len);
+      // LOG("bufOffset %d \n", bufOffset);
 
       if (opCode == WS_OPCODE_CLOSE) {
-        DEBUG("Closing message: %s\n", payload); // Must not be shown to client as per spec
+        LOG("Closing message: %s\n", payload); // Must not be shown to client as per spec
 
         espconn_regist_sentcb(conn, ws_closeSentCallback);
         ws_sendFrame(conn, WS_OPCODE_CLOSE, (const char *) (b + bufOffset), (unsigned short) payloadLength);
@@ -493,7 +489,7 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
     }
 
     bufOffset += payloadLength;
-    DEBUG("bufOffset %d \n", bufOffset);
+    LOG("bufOffset %d \n", bufOffset);
     if (bufOffset == len) { // (bufOffset > len) won't happen here because it's being checked earlier
       b = NULL;
       if (ws->frameBuffer != NULL) { // the last frame inside buffer was processed
@@ -505,11 +501,11 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
       len -= bufOffset;
       b += bufOffset; // move b to next frame
       if (ws->frameBuffer != NULL) {
-        DEBUG("Reallocing frameBuffer to remove consumed frame\n");
+        LOG("Reallocing frameBuffer to remove consumed frame\n");
 
         ws->frameBuffer = (char*)os_realloc(ws->frameBuffer, ws->frameBufferLen + len);
         if (ws->frameBuffer == NULL) {
-          DEBUG("Failed to allocate new frame buffer, disconnecting...\n");
+          LOG("Failed to allocate new frame buffer, disconnecting...\n");
 
           ws->knownFailureCode = -14;
           if (ws->isSecure)
@@ -528,13 +524,13 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
 }
 
 static void ICACHE_FLASH_ATTR ws_initReceiveCallback(void *arg, char *buf, unsigned short len) {
-  DEBUG("ws_initReceiveCallback %d \n", len);
+  LOG("ws_initReceiveCallback %d \n", len);
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
   // Check server is switch protocols
   if (strstr(buf, WS_HTTP_SWITCH_PROTOCOL_HEADER) == NULL) {
-      DEBUG("Server is not switching protocols\n");
+      LOG("Server is not switching protocols\n");
       ws->knownFailureCode = -17;
     if (ws->isSecure)
       espconn_secure_disconnect(conn);
@@ -545,7 +541,7 @@ static void ICACHE_FLASH_ATTR ws_initReceiveCallback(void *arg, char *buf, unsig
 
   // Check server has valid sec key
   if (strstr(buf, ws->expectedSecKey) == NULL) {
-    DEBUG("Server has invalid response\n");
+    LOG("Server has invalid response\n");
     ws->knownFailureCode = -7;
     if (ws->isSecure)
       espconn_secure_disconnect(conn);
@@ -554,7 +550,7 @@ static void ICACHE_FLASH_ATTR ws_initReceiveCallback(void *arg, char *buf, unsig
     return;
   }
 
-  DEBUG("Server response is valid, it's now a websocket!\n");
+  LOG("Server response is valid, it's now a websocket!\n");
 
   os_timer_disarm(&ws->timeoutTimer);
   os_timer_setfn(&ws->timeoutTimer, (os_timer_func_t *) ws_sendPingTimeout, conn);
@@ -568,7 +564,7 @@ static void ICACHE_FLASH_ATTR ws_initReceiveCallback(void *arg, char *buf, unsig
   char *data = strstr(buf, "\r\n\r\n");
   unsigned short dataLength = len - (data - buf) - 4;
 
-  DEBUG("dataLength = %d\n", len - (data - buf) - 4);
+  LOG("dataLength = %d\n", len - (data - buf) - 4);
 
   if (data != NULL && dataLength > 0) { // handshake already contained a frame
     ws_receiveCallback(arg, data + 4, dataLength);
@@ -576,7 +572,7 @@ static void ICACHE_FLASH_ATTR ws_initReceiveCallback(void *arg, char *buf, unsig
 }
 
 static void connect_callback(void *arg) {
-  DEBUG("Connected\n");
+  LOG("Connected\n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
@@ -703,7 +699,7 @@ static void ICACHE_FLASH_ATTR dns_callback(const char *hostname, ip_addr_t *addr
     espconn_connect(conn);
   }
 
-  DEBUG("DNS found %s " IPSTR " \n", hostname, IP2STR(addr));
+  LOG("DNS found %s " IPSTR " \n", hostname, IP2STR(addr));
 }
 
 void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
@@ -734,7 +730,7 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
   char hostname[256];
   if (path) {
     if (path - url >= sizeof(hostname)) {
-      DEBUG("Hostname too large");
+      LOG("Hostname too large");
       if (ws->onFailure) ws->onFailure(ws, -2);
       return;
     }
@@ -753,7 +749,7 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
   if (portInHostname) {
     port = atoi(portInHostname + 1);
     if (port <= 0 || port > PORT_MAX_VALUE) {
-      DEBUG("Invalid port number\n");
+      LOG("Invalid port number\n");
       if (ws->onFailure) ws->onFailure(ws, -3);
       return;
     }
@@ -763,12 +759,12 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
   }
 
   if (strlen(hostname) == 0) {
-    DEBUG("Failed to extract hostname\n");
+    LOG("Failed to extract hostname\n");
     if (ws->onFailure) ws->onFailure(ws, -4);
     return;
   }
 
-  DEBUG("secure protocol = %d\n %s:%d/%s", isSecure, hostname, port, path);
+  LOG("secure protocol = %d\n %s:%d/%s", isSecure, hostname, port, path);
 
   ws->connectionState = CS_CLOSED;
   ws->isSecure = isSecure;
@@ -804,12 +800,12 @@ void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url) {
 }
 
 void ws_send(ws_info *ws, int opCode, const char *message, unsigned short length) {
-  DEBUG("ws_send %d\n", length);
+  LOG("ws_send %d\n", length);
   ws_sendFrame(ws->conn, opCode, message, length);
 }
 
 static void ICACHE_FLASH_ATTR ws_forceCloseTimeout(void *arg) {
-  DEBUG("ws_forceCloseTimeout\n");
+  LOG("ws_forceCloseTimeout\n");
   struct espconn *conn = (struct espconn *) arg;
   ws_info *ws = (ws_info *) conn->reverse;
 
@@ -824,7 +820,7 @@ static void ICACHE_FLASH_ATTR ws_forceCloseTimeout(void *arg) {
 }
 
 void ICACHE_FLASH_ATTR ws_close(ws_info *ws) {
-  DEBUG("ws_close\n");
+  LOG("ws_close\n");
 
   if (ws->connectionState == CS_INITIAL || ws->connectionState == CS_CLOSING) {
     return;
