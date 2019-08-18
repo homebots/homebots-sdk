@@ -20,6 +20,7 @@ extern "C" {
 
 int pinRead(uint8_t pin);
 void pinWrite(uint8_t pin, uint8_t value);
+void pinMode(uint8_t pin, uint8_t mode);
 
 #ifdef __cplusplus
 }

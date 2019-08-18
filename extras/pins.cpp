@@ -22,6 +22,10 @@ void pinWrite(uint8_t pin, uint8_t value) {
   GPIO_OUTPUT_SET(pin, value);
 }
 
+void pinMode(uint8_t pin, uint8_t value) {
+  PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), value);
+}
+
 #ifdef __cplusplus
 }
 #endif
