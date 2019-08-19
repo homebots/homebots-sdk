@@ -26,11 +26,7 @@ A blank project looks like this:
 #include "esp-open-sdk.h"
 
 void setup() {
-
-}
-
-void loop() {
-
+  // called after boot
 }
 
 ```
@@ -67,7 +63,9 @@ python setup.py install
 Then, from a terminal, just run the `make` commands from your project's folder:
 
 ```
-$ make build
+make build
+
+// you will see something like this:
 
 CC project/src/index.c
 AR project/build/esp8266_app.a
@@ -75,7 +73,9 @@ LD project/build/esp8266.out
 FW project/firmware/
 esptool.py v1.2
 
-$ make flash
+// then flash your rom
+
+make flash
 
 ```
 
