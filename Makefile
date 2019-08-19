@@ -16,8 +16,8 @@ FW_BASE			= project/firmware
 TARGET			= esp8266
 
 # which modules (subdirectories) of the project to include in compiling
-MODULES         = project/src extras
-EXTRA_INCDIR    = extras project/include
+MODULES         = project/src sdk
+EXTRA_INCDIR    = sdk project/include
 
 # libraries used in this project, mainly provided by the SDK
 LIBS		?= c gcc hal pp phy net80211 lwip wpa main crypto # ssl

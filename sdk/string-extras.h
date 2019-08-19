@@ -1,5 +1,5 @@
-#ifndef _STRINGS_H_
-#define _STRINGS_H_
+#ifndef _STRING_EXTRAS_H_
+#define _STRING_EXTRAS_H_
 
 #include "c_types.h"
 

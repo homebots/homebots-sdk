@@ -1,5 +1,5 @@
-#ifndef _ESP_OPEN_SDK_
-#define _ESP_OPEN_SDK_
+#ifndef _HOMEBOTS_
+#define _HOMEBOTS_
 
 #ifdef __cplusplus
 extern "C" {

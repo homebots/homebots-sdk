@@ -13,6 +13,5 @@
 #include "user_interface.h"
 #include "websocket.h"
 #include "wifi.h"
-// #include "ntp.h"
 
 #endif
