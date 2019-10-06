@@ -44,19 +44,19 @@
 #define I2C_MASTER_SDA_LOW_SCL_LOW()  \
     gpio_output_set(0, 1<<I2C_MASTER_SDA_GPIO | 1<<I2C_MASTER_SCL_GPIO, 1<<I2C_MASTER_SDA_GPIO | 1<<I2C_MASTER_SCL_GPIO, 0)
 
+#define i2c_wait    os_delay_us
+
 void i2c_gpio_init(void);
 void i2c_init(void);
-
-#define i2c_wait    os_delay_us
 void i2c_stop(void);
 void i2c_start(void);
 void i2c_setAck(uint8 level);
 uint8_t i2c_getAck(void);
 uint8_t i2c_readByte(void);
 void i2c_findDevices(uint8_t* devices);
+uint8_t i2c_findDevice();
 void i2c_writeByte(uint8_t wrdata);
 void i2c_writeByteAndAck(uint8_t wrdata);
-
 bool i2c_checkAck(void);
 void i2c_send_ack(void);
 void i2c_send_nack(void);

@@ -240,7 +240,7 @@ void ICACHE_FLASH_ATTR i2c_writeByte(uint8 byte) {
 void ICACHE_FLASH_ATTR i2c_findDevices(uint8_t* devices) {
   uint8_t i;
 
-  for (i = 0; i < 0xff; i++) {
+  for (i = 0; i < 255; i++) {
     i2c_start();
     i2c_writeByte(i);
 
@@ -252,4 +252,21 @@ void ICACHE_FLASH_ATTR i2c_findDevices(uint8_t* devices) {
 
     i2c_stop();
   }
+}
+
+uint8_t ICACHE_FLASH_ATTR i2c_findDevice() {
+  uint8_t i;
+
+  for (i = 0; i < 255; i++) {
+    i2c_start();
+    i2c_writeByte(i);
+
+    if (i2c_checkAck()) {
+      return i;
+    }
+
+    i2c_stop();
+  }
+
+  return 0;
 }
