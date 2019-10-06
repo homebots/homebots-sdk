@@ -22,8 +22,16 @@ void pinWrite(uint8_t pin, uint8_t value) {
   GPIO_OUTPUT_SET(pin, value);
 }
 
-void pinMode(uint8_t pin, uint8_t value) {
-  PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), value);
+void pinMode(uint8_t pin, uint8_t mode) {
+  PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), mode);
+}
+
+bool isHigh(uint8_t pin) {
+  return (gpio_input_get() >> pin) & BIT0;
+}
+
+bool isLow(uint8_t pin) {
+  return !isHigh(pin);
 }
 
 #ifdef __cplusplus

@@ -2,9 +2,9 @@
 #define _ESP_SHA_
 
 typedef struct {
-    uint32_t state[5];
-    uint32_t count[2];
-    unsigned char buffer[64];
+  uint32_t state[5];
+  uint32_t count[2];
+  unsigned char buffer[64];
 } SHA1_CTX;
 
 void SHA1Transform(uint32_t state[5], const unsigned char buffer[64]);

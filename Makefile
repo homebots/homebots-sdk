@@ -1,5 +1,4 @@
 VFLAG =
-
 V ?= $(VERBOSE)
 ifeq ("$(V)","1")
 Q :=
@@ -10,24 +9,30 @@ Q := @
 vecho := @echo
 endif
 
+ifndef USER_MAIN
+override USER_MAIN = "call_user_start"
+endif
+
 BUILD_BASE	= project/build
 ESPTOOL			= esptool.py
 FW_BASE			= project/firmware
 TARGET			= esp8266
 
 # which modules (subdirectories) of the project to include in compiling
-MODULES         = project/src sdk
+MODULES         = project/src sdk project/include
 EXTRA_INCDIR    = sdk project/include
 
 # libraries used in this project, mainly provided by the SDK
-LIBS		?= c gcc hal pp phy net80211 lwip wpa main crypto # ssl
+# ifndef LIBS
+LIBS						= c gcc hal pp phy net80211 lwip wpa main crypto # ssl
+# endif
 
 # compiler flags using during compilation of source files
-CFLAGS		= $(VFLAG) -Os -s -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
+CFLAGS		= $(VFLAG) -Os -s -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -D__ets__ -DICACHE_FLASH
 CXXFLAGS	= $(VFLAG) $(CFLAGS) -fno-rtti -fno-exceptions
 
 # linker flags used to generate the main object file
-LDFLAGS		?= -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
+LDFLAGS		?= -nostdlib -Wl,--no-check-sections -u $(USER_MAIN) -Wl,-static
 
 # linker script used for the above linkier step
 LD_SCRIPT	= eagle.app.v6.ld
@@ -116,5 +121,8 @@ clean:
 
 disassemble:
 	xtensa-lx106-elf-objdump -D -S $(TARGET_OUT) > $(addprefix $(BUILD_BASE)/,$(TARGET).asm)
+
+symboldump:
+	xtensa-lx106-elf-nm -g $(TARGET_OUT) > $(addprefix $(BUILD_BASE)/,$(TARGET).sym)
 
 $(foreach bdir,$(BUILD_DIR),$(eval $(call compile-objects,$(bdir))))

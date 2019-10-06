@@ -21,6 +21,8 @@ extern "C" {
 int pinRead(uint8_t pin);
 void pinWrite(uint8_t pin, uint8_t value);
 void pinMode(uint8_t pin, uint8_t mode);
+bool isHigh(uint8_t pin);
+bool isLow(uint8_t pin);
 
 #ifdef __cplusplus
 }
