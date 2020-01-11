@@ -60,11 +60,8 @@ i2c_setDataAndClock(uint8 SDA, uint8 SCL)
 }
 
 LOCAL uint8 ICACHE_FLASH_ATTR
-i2c_getDC(void)
-{
-  uint8 sda_out;
-  sda_out = GPIO_INPUT_GET(GPIO_ID_PIN(I2C_MASTER_SDA_GPIO));
-  return sda_out;
+i2c_getDC(void) {
+  return GPIO_INPUT_GET(GPIO_ID_PIN(I2C_MASTER_SDA_GPIO));
 }
 
 void ICACHE_FLASH_ATTR
@@ -93,7 +90,6 @@ void ICACHE_FLASH_ATTR
 i2c_gpio_init(void)
 {
   ETS_GPIO_INTR_DISABLE();
-  //    ETS_INTR_LOCK();
 
   PIN_FUNC_SELECT(I2C_MASTER_SDA_MUX, I2C_MASTER_SDA_FUNC);
   PIN_FUNC_SELECT(I2C_MASTER_SCL_MUX, I2C_MASTER_SCL_FUNC);
@@ -106,7 +102,6 @@ i2c_gpio_init(void)
   I2C_MASTER_SDA_HIGH_SCL_HIGH();
 
   ETS_GPIO_INTR_ENABLE();
-  //    ETS_INTR_UNLOCK();
 
   i2c_init();
 }

@@ -90,9 +90,9 @@ void ets_intr_unlock();
 // 0x40000f88
 void ets_isr_attach();
 // 0x40000f98
-void ets_isr_mask();
+void ets_isr_mask(unsigned intr);
 // 0x40000fa8
-void ets_isr_unmask();
+void ets_isr_unmask(unsigned intr);
 // 0x40000fbc
 void ets_set_user_start();
 // 0x40000fec

@@ -465,13 +465,6 @@ static void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf, unsigned 
         payload[payloadLength - extensionDataOffset] = '\0';
       }
 
-      // LOG("isFin %d \n", isFin);
-      // LOG("opCode %d \n", opCode);
-      // LOG("hasMask %d \n", hasMask);
-      // LOG("payloadLength %d \n", payloadLength);
-      // LOG("len %d \n", len);
-      // LOG("bufOffset %d \n", bufOffset);
-
       if (opCode == WS_OPCODE_CLOSE) {
         LOG("Closing message: %s\n", payload); // Must not be shown to client as per spec
 

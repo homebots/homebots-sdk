@@ -23,9 +23,9 @@ MODULES         = project/src sdk project/include
 EXTRA_INCDIR    = sdk project/include
 
 # libraries used in this project, mainly provided by the SDK
-# ifndef LIBS
-LIBS						= c gcc hal pp phy net80211 lwip wpa main crypto # ssl
-# endif
+ifndef LIBS
+LIBS            = c gcc hal pp phy net80211 lwip wpa main crypto # ssl
+endif
 
 # compiler flags using during compilation of source files
 CFLAGS		= $(VFLAG) -Os -s -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -D__ets__ -DICACHE_FLASH
