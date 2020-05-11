@@ -9,10 +9,12 @@ extern "C" {
 
 class Wifi {
   public:
-    void connectTo(const char* ssid, const char *password);
+    void connectTo(const char* ssid, const char* password);
+    void startAccessPoint();
+    void startAccessPoint(const char* ssid);
+    void startAccessPoint(const char* ssid, const char* password);
     bool isConnected();
     void printStatus();
-    void startAccessPoint();
     uint8_t getStatus();
     void initSntp();
 };
