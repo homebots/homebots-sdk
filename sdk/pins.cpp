@@ -3,15 +3,17 @@ extern "C" {
 #endif
 
 #include "pins.h"
-#include "eagle_soc.h"
-#include "gpio.h"
-#include "osapi.h"
+
 #include "c_types.h"
+#include "eagle_soc.h"
 #include "ets_sys.h"
+#include "gpio.h"
 #include "missing-includes.h"
+#include "osapi.h"
 
 /**
- * @see https://www.espressif.com/sites/default/files/documentation/esp8266-technical_reference_en.pdf
+ * @see
+ * https://www.espressif.com/sites/default/files/documentation/esp8266-technical_reference_en.pdf
  *
  * GPIO_ENABLE_W1TS = BIT(x)    enable output in pin(x)
  * GPIO_ENABLE_W1TC = BIT(x)    disable output in pin(x)
@@ -70,9 +72,7 @@ bool pinRead(uint8_t pin) {
   return LOW;
 }
 
-void pinWrite(uint8_t pin, bool value) {
-  GPIO_OUTPUT_SET(pin, value & 0x01);
-}
+void pinWrite(uint8_t pin, bool value) { GPIO_OUTPUT_SET(pin, value & 0x01); }
 
 void pinType(uint8_t pin, uint8_t mode) {
   PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), mode);
@@ -104,12 +104,15 @@ void pinMode(uint8_t pin, PinMode mode) {
       break;
 
     case PinOutput:
-      GPIO_REG_WRITE(GPIO_ENABLE_ADDRESS, GPIO_REG_READ(GPIO_ENABLE_ADDRESS) | BIT(pin));
+      GPIO_REG_WRITE(GPIO_ENABLE_ADDRESS,
+                     GPIO_REG_READ(GPIO_ENABLE_ADDRESS) | BIT(pin));
       break;
   }
 
   if (mode == PinOpenDrain) {
-    GPIO_REG_WRITE(pinRegister, GPIO_REG_READ(pinRegister) | GPIO_PIN_PAD_DRIVER_SET(GPIO_PAD_DRIVER_ENABLE));
+    GPIO_REG_WRITE(pinRegister,
+                   GPIO_REG_READ(pinRegister) |
+                       GPIO_PIN_PAD_DRIVER_SET(GPIO_PAD_DRIVER_ENABLE));
   }
 
   if (mode == PinInputPullUp) {
@@ -119,13 +122,9 @@ void pinMode(uint8_t pin, PinMode mode) {
   }
 }
 
-bool isHigh(uint8_t pin) {
-  return (gpio_input_get() >> pin) & BIT0;
-}
+bool isHigh(uint8_t pin) { return (gpio_input_get() >> pin) & BIT0; }
 
-bool isLow(uint8_t pin) {
-  return !isHigh(pin);
-}
+bool isLow(uint8_t pin) { return !isHigh(pin); }
 
 volatile static InterruptCallback* interruptCallbacks[NUMBER_OF_PINS];
 
@@ -136,7 +135,7 @@ void onInterrupt() {
 
   GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, gpio_status);
 
-  while(pin--) {
+  while (pin--) {
     if ((gpio_status & BIT(pin)) && interruptCallbacks[pin] != 0) {
       satisfied = true;
       interruptCallbacks[pin]();
@@ -154,7 +153,8 @@ void detachInterrupt(uint8_t pin) {
   gpio_pin_intr_state_set(pin, GPIO_PIN_INTR_DISABLE);
 }
 
-void attachInterrupt(uint8_t pin, InterruptCallback* callback, InterruptMode mode) {
+void attachInterrupt(uint8_t pin, InterruptCallback* callback,
+                     InterruptMode mode) {
   interruptCallbacks[pin] = callback;
   GPIO_DIS_OUTPUT(GPIO_ID_PIN(pin));
   ETS_GPIO_INTR_DISABLE();
@@ -162,21 +162,14 @@ void attachInterrupt(uint8_t pin, InterruptCallback* callback, InterruptMode mod
   ETS_GPIO_INTR_ENABLE();
 }
 
-void armInterrupts() {
-  ETS_GPIO_INTR_ATTACH((ets_isr_t)onInterrupt, NULL);
-}
+void armInterrupts() { ETS_GPIO_INTR_ATTACH((ets_isr_t)onInterrupt, NULL); }
 
 class InterruptLock {
-  public:
-    InterruptLock() {
-      ets_intr_lock();
-    }
+ public:
+  InterruptLock() { ets_intr_lock(); }
 
-    ~InterruptLock() {
-      ets_intr_unlock();
-    }
+  ~InterruptLock() { ets_intr_unlock(); }
 };
-
 
 #ifdef __cplusplus
 }

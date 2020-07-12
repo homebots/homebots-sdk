@@ -3,9 +3,10 @@ extern "C" {
 #endif
 
 #include "task.h"
-#include "user_interface.h"
+
 #include "c_types.h"
 #include "osapi.h"
+#include "user_interface.h"
 
 static os_event_t executionQueue[MAX_QUEUE_SIZE];
 static bool delayGuard = false;

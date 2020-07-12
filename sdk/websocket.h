@@ -26,38 +26,44 @@
 #define _WEBSOCKET_H_
 
 #define WS_OPCODE_CONTINUATION 0x0
-#define WS_OPCODE_TEXT 0x1
-#define WS_OPCODE_BINARY 0x2
-#define WS_OPCODE_CLOSE 0x8
-#define WS_OPCODE_PING 0x9
-#define WS_OPCODE_PONG 0xA
+#define WS_OPCODE_TEXT         0x1
+#define WS_OPCODE_BINARY       0x2
+#define WS_OPCODE_CLOSE        0x8
+#define WS_OPCODE_PING         0x9
+#define WS_OPCODE_PONG         0xA
 
-#define CS_INITIAL           0
-#define CS_CLOSED            1
-#define CS_CONNECTING        2
-#define CS_CONNECTED         3
-#define CS_CLOSING           4
+#define CS_INITIAL    0
+#define CS_CLOSED     1
+#define CS_CONNECTING 2
+#define CS_CONNECTED  3
+#define CS_CLOSING    4
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "osapi.h"
-#include "user_interface.h"
+#include "c_types.h"
+#include "ip_addr.h"
 #include "espconn.h"
-#include "mem.h"
 #include "limits.h"
+#include "mem.h"
+#include "osapi.h"
+#include "serial-debug.h"
+#include "stdarg.h"
 #include "stdlib.h"
+#include "string-extras.h"
+#include "user_interface.h"
 
 struct ws_info;
 
 typedef void (*ws_onConnectionCallback)(struct ws_info *wsInfo);
-typedef void (*ws_onReceiveCallback)(struct ws_info *wsInfo, int len, char *message, int opCode);
+typedef void (*ws_onReceiveCallback)(struct ws_info *wsInfo, int len,
+                                     char *message, int opCode);
 typedef void (*ws_onFailureCallback)(struct ws_info *wsInfo, int errorCode);
 
 typedef struct {
-	char *key;
-	char *value;
+  const char *key;
+  const char *value;
 } header_t;
 
 typedef struct ws_info {
@@ -81,7 +87,7 @@ typedef struct ws_info {
   int payloadBufferLen;
   int payloadOriginalOpCode;
 
-  os_timer_t  timeoutTimer;
+  os_timer_t timeoutTimer;
   int unhealthyPoints;
 
   ws_onConnectionCallback onConnection;
@@ -90,11 +96,12 @@ typedef struct ws_info {
 } ws_info;
 
 void ICACHE_FLASH_ATTR ws_connect(ws_info *wsInfo, const char *url);
-void ICACHE_FLASH_ATTR ws_send(ws_info *wsInfo, int opCode, const char *message, unsigned short length);
+void ICACHE_FLASH_ATTR ws_send(ws_info *wsInfo, int opCode, const char *message,
+                               unsigned short length);
 void ICACHE_FLASH_ATTR ws_close(ws_info *wsInfo);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // _WEBSOCKET_H_
+#endif  // _WEBSOCKET_H_

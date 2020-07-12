@@ -11,13 +11,12 @@ extern "C" {
 
 #define USE_US_TIMER
 
-#include "sdk.h"
 #include "missing-includes.h"
+#include "sdk.h"
 
 extern void setup();
 
-void ICACHE_FLASH_ATTR
-user_init() {
+void ICACHE_FLASH_ATTR user_init() {
   uart_div_modify(0, UART_CLK_FREQ / SERIAL_SPEED);
   gpio_init();
 

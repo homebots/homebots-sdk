@@ -5,10 +5,10 @@
 extern "C" {
 #endif
 
-#ifndef DEBUG
-#define LOG(...)
-#else
+#ifdef DEBUG
 #define LOG(...) os_printf(__VA_ARGS__)
+#else
+#define LOG(...)
 #endif
 
 #ifdef __cplusplus

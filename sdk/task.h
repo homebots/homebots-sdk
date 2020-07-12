@@ -5,17 +5,17 @@
 extern "C" {
 #endif
 
-#include "user_interface.h"
 #include "c_types.h"
+#include "user_interface.h"
 
-#define MAX_SAFE_DELAY    1000UL
-#define MAX_QUEUE_SIZE    3
+#define MAX_SAFE_DELAY 1000UL
+#define MAX_QUEUE_SIZE 3
 
 class TaskQueueHelper {
   uint8_t queueSize;
 
-  public:
-    void schedule(os_task_t task);
+ public:
+  void schedule(os_task_t task);
 };
 
 void tick();

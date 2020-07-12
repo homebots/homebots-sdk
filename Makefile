@@ -29,7 +29,7 @@ endif
 
 # compiler flags using during compilation of source files
 CFLAGS		= $(VFLAG) -Os -s -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals -D__ets__ -DICACHE_FLASH
-CXXFLAGS	= $(VFLAG) $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS	= $(VFLAG) $(CFLAGS) -fno-rtti -fno-exceptions -std=c++11
 
 # linker flags used to generate the main object file
 LDFLAGS		?= -nostdlib -Wl,--no-check-sections -u $(USER_MAIN) -Wl,-static
