@@ -1,1 +1,2 @@
-docker build -t darlanalves/homebots-sdk:latest .
+docker build --no-cache -t darlanalves/homebots-sdk:latest .
+

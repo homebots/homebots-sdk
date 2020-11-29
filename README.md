@@ -1,49 +1,29 @@
 # darlanalves/homebots-sdk
 
-Firmware SDK of all @homebots.
+A docker container to build binaries for esp8266 board + C++ utilities for low-level sensor integration.
 
-Build on top of [the ESP compiler](https://github.com/homebots/docker-espbuild)
+This is built on top of [another container with just the compiler](https://github.com/homebots/docker-espbuild)
 
 ## Usage
 
-The container has everything to build and deploy firmware images for the ESP8266.
-
-See some example projects [here](https://github.com/homebots/esp8266-starter-examples) or [here](https://github.com/esp8266/source-code-examples/blob/master/blinky/user/user_main.c)
+See some example projects [here](https://github.com/homebots/esp8266-examples) or [here](https://github.com/esp8266/source-code-examples/blob/master/blinky/user/user_main.c)
 
 ## Project structure
 
-A blank project looks like this:
+A project looks like this:
 
 ```
--- src/
-   index.c
 -- Makefile
-```
-
-### src/index.c
-
-```c
-#include "esp-open-sdk.h"
-
-void setup() {
-  // called after boot
-}
+-- src/
+ |-- index.c
+ |
+-- includes/
+ |-- lib.h
+ |-- other-lib.h
 
 ```
 
-### Makefile
-
-```makefile
-ESP_PORT       ?= /dev/ttyUSB0
-FLASH_SPEED   ?= 230400
-
-build:
-	docker run --rm -it -v$$(pwd)/:/home/espbuilder/project darlanalves/espbuild
-
-flash:
-	esptool.py --baud $(FLASH_SPEED) --port $(ESP_PORT) write_flash -fm qio -fs 512KB 0x00000 firmware/0x00000.bin 0x10000 firmware/0x10000.bin 0x7c000 firmware/0x7c000.bin
-
-```
+You can copy the "example" folder as a starting point.
 
 ### Build and flash
 
@@ -51,16 +31,23 @@ You will need `esptool.py` to flash your binaries.
 It can be installed with `pip` or directly from GitHub:
 
 ```bash
-pip2 install esptool
+# using pip or pip3
+pip install esptool
 
 # if that does not work:
 
 git clone https://github.com/espressif/esptool.git ~/esptool
 cd ~/esptool
 python setup.py install
+
+# on MacOs, Homebrew also works
+brew install esptool
 ```
 
-Then, from a terminal, just run the `make` commands from your project's folder:
+Then, from a terminal, just run the `make` commands from your project's folder.
+
+> You don't really need "make" installed in order to build.
+> Just look at the commands inside the example Makefile to build without `make`
 
 ```
 make build
@@ -73,9 +60,10 @@ LD project/build/esp8266.out
 FW project/firmware/
 esptool.py v1.2
 
-// then flash your rom
-
+// then flash your rom to the defaults
 make flash
 
-```
+// or specify a serial port to flash
+ESP_PORT=/dev/tty.usbserialport make flash
 
+```
