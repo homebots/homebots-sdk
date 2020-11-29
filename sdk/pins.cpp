@@ -72,7 +72,9 @@ bool pinRead(uint8_t pin) {
   return LOW;
 }
 
-void pinWrite(uint8_t pin, bool value) { GPIO_OUTPUT_SET(pin, value & 0x01); }
+void pinWrite(uint8_t pin, bool value) { 
+  GPIO_OUTPUT_SET(pin, value & 0x01); 
+}
 
 void pinType(uint8_t pin, uint8_t mode) {
   PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), mode);

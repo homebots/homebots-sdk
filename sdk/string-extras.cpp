@@ -70,16 +70,15 @@ uint8_t* String::getBuffer() {
 void String::append(String string) { append((uint8_t*)string.getBuffer()); }
 void String::append(const char* chars) { append((uint8_t*)chars); }
 void String::append(const uint8_t* chars) { append((uint8_t*)chars); }
+void String::append(uint8_t* chars) { append(chars, os_strlen((const char*)chars)); }
 
-void String::append(uint8_t* chars) {
-  int charsLength = os_strlen((const char*)chars);
-
+void String::append(uint8_t* chars, int charsLength) {
   if (length + charsLength > bufferLength) {
     bufferLength += 1024;
     buffer = (uint8*)os_realloc(buffer, bufferLength);
   }
 
-  os_strcpy((char*)buffer, (char*)chars);
+  os_strncpy((char*)buffer, (char*)chars, charsLength);
   buffer += charsLength;
   length += charsLength;
   buffer[length] = '\0';

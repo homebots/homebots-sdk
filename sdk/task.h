@@ -11,15 +11,9 @@ extern "C" {
 #define MAX_SAFE_DELAY 1000UL
 #define MAX_QUEUE_SIZE 3
 
-class TaskQueueHelper {
-  uint8_t queueSize;
-
- public:
-  void schedule(os_task_t task);
-};
-
 void tick();
-void ICACHE_FLASH_ATTR delay(uint16_t time);
+void task_schedule(os_task_t task);
+void delay(uint16_t time);
 void delayMicroseconds(uint32_t time);
 
 #ifdef __cplusplus

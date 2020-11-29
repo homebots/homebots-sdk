@@ -21,6 +21,7 @@ void ICACHE_FLASH_ATTR user_init() {
   gpio_init();
 
   // 160MHz
+  system_update_cpu_freq(SYS_CPU_160MHZ);
   // *((volatile uint32_t *)(0x3FF00014)) = 1;
 
   setup();

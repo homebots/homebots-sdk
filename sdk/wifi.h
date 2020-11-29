@@ -6,6 +6,12 @@ extern "C" {
 #endif
 
 #include "c_types.h"
+#include "mem.h"
+#include "osapi.h"
+#include "gpio.h"
+#include "serial-debug.h"
+#include "user_interface.h"
+#include "missing-includes.h"
 
 class Wifi {
   public:
@@ -22,6 +28,8 @@ class Wifi {
     void printMacAddress();
     void disconnect();
     void getMacAddress(char* address);
+    void scan();
+    bss_info* getWifiList();
 
     uint8_t getStatus();
 };

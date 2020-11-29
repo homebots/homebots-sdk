@@ -20,7 +20,10 @@ TARGET			= esp8266
 
 # which modules (subdirectories) of the project to include in compiling
 MODULES         = project/src sdk project/include
+
+ifndef EXTRA_INCDIR
 EXTRA_INCDIR    = sdk project/include
+endif
 
 # libraries used in this project, mainly provided by the SDK
 ifndef LIBS

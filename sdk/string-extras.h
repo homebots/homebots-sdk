@@ -33,6 +33,7 @@ class String {
   void append(const char* chars);
   void append(const uint8_t* chars);
   void append(uint8_t* chars);
+  void append(uint8_t* chars, int charsLength);
   uint8_t* getBuffer();
 
  private:

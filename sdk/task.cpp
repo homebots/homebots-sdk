@@ -8,9 +8,9 @@ extern "C" {
 #include "osapi.h"
 #include "user_interface.h"
 
+static int queueSize = 0;
 static os_event_t executionQueue[MAX_QUEUE_SIZE];
 static bool delayGuard = false;
-static TaskQueueHelper TaskQueue;
 
 void ICACHE_FLASH_ATTR tick() {
   if (!delayGuard) {
@@ -18,7 +18,7 @@ void ICACHE_FLASH_ATTR tick() {
   }
 }
 
-void TaskQueueHelper::schedule(os_task_t task) {
+void task_schedule(os_task_t task) {
   queueSize++;
   system_os_task(task, USER_TASK_PRIO_0, executionQueue, queueSize);
 }

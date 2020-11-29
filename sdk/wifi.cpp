@@ -2,20 +2,45 @@
 extern "C" {
 #endif
 
-#include "c_types.h"
-#include "mem.h"
-#include "osapi.h"
-#include "gpio.h"
-#include "serial-debug.h"
-#include "user_interface.h"
 #include "wifi.h"
-#include "missing-includes.h"
 
 void _getMacAddress(char* address) {
   uint8_t mac[6];
   wifi_get_macaddr(STATION_IF, mac);
   os_sprintf(address, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
+
+LOCAL bss_info *lastScan = 0;
+
+void ICACHE_FLASH_ATTR _onScanCompleted(bss_info* result, STATUS status) {
+  if (status != OK) {
+    return;
+  }
+
+  int count = 0;
+
+  for (bss_info* pointer = result; pointer; pointer = STAILQ_NEXT(pointer, next), ++count);
+
+  if (count == 0) {
+    return;
+  }
+
+  if (lastScan != 0) {
+    os_free(lastScan);
+  }
+
+  lastScan = (bss_info*)os_zalloc(count * sizeof(bss_info));
+  bss_info* copy = lastScan;
+
+  os_printf("Copy %d %ul \n", count, copy);
+  count = 0;
+
+  for (bss_info* current = result; current; current = STAILQ_NEXT(current, next), ++count) {
+    os_memcpy(copy + count, (void*)current, sizeof(bss_info));
+    os_printf(".. %s\n", *(copy + count)->ssid);
+  }
+}
+
 
 void Wifi::connectTo(const char* ssid, const char* password) {
   connectTo(ssid, password, false);
@@ -157,9 +182,6 @@ void Wifi::startAccessPoint(const char* ssid, const char* password) {
   if(wifi_softap_dhcps_status() != DHCP_STARTED) {
     wifi_softap_dhcps_start();
   }
-
-  LOG("Available at homebots.local\n");
-  // wifi_station_set_hostname((char*)"homebots.local");
 }
 
 void Wifi::stopAccessPoint() {
@@ -184,6 +206,14 @@ void Wifi::useStatusLed(uint8_t ioPin) {
       wifi_status_led_install(2, PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
       break;
   }
+}
+
+void Wifi::scan() {
+  wifi_station_scan(NULL, (scan_done_cb_t)_onScanCompleted);
+}
+
+bss_info* Wifi::getWifiList() {
+  return lastScan;
 }
 
 #ifdef __cplusplus
