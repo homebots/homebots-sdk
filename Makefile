@@ -13,7 +13,7 @@ ifndef USER_MAIN
 override USER_MAIN = "call_user_start"
 endif
 
-BUILD_BASE	= project/build
+BUILD_BASE		= project/build
 ESPTOOL			= esptool.py
 FW_BASE			= project/firmware
 TARGET			= esp8266
