@@ -1,10 +1,6 @@
 #ifndef _ESP_PINS_
 #define _ESP_PINS_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "c_types.h"
 #include "missing-includes.h"
 #include "eagle_soc.h"
@@ -13,22 +9,23 @@ extern "C" {
 #include "missing-includes.h"
 #include "osapi.h"
 
-#define PIN_0  0
+#define PIN_0 0
 #define PIN_TX 1
-#define PIN_2  2
+#define PIN_2 2
 #define PIN_RX 3
 
-#define LOW  0
+#define LOW 0
 #define HIGH 1
 
 #ifndef NUMBER_OF_PINS
 #define NUMBER_OF_PINS 4
 #endif
 
-typedef enum {
-  PinInput       = 0,
-  PinOutput      = 1,
-  PinOpenDrain   = 3,
+typedef enum
+{
+  PinInput = 0,
+  PinOutput = 1,
+  PinOpenDrain = 3,
   PinInputPullUp = 4,
 } PinMode;
 
@@ -92,64 +89,76 @@ bool isLow(uint8_t pin);
  *    }
  */
 
-bool pinRead(uint8_t pin) {
+bool pinRead(uint8_t pin)
+{
   bool value = GPIO_INPUT_GET(pin);
 
-  if (value) {
+  if (value)
+  {
     return HIGH;
   }
 
   return LOW;
 }
 
-void pinWrite(uint8_t pin, bool value) {
+void pinWrite(uint8_t pin, bool value)
+{
   GPIO_OUTPUT_SET(pin, value & 0x01);
 }
 
-void pinType(uint8_t pin, uint8_t mode) {
+void pinType(uint8_t pin, uint8_t mode)
+{
   PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), mode);
 }
 
-uint32_t _pinName(uint8_t pin) {
-  switch (pin) {
-    case 0:
-      return PERIPHS_IO_MUX_GPIO0_U;
+uint32_t _pinName(uint8_t pin)
+{
+  switch (pin)
+  {
+  case 0:
+    return PERIPHS_IO_MUX_GPIO0_U;
 
-    case 1:
-      return PERIPHS_IO_MUX_U0RXD_U;
+  case 1:
+    return PERIPHS_IO_MUX_U0RXD_U;
 
-    case 2:
-      return PERIPHS_IO_MUX_GPIO2_U;
+  case 2:
+    return PERIPHS_IO_MUX_GPIO2_U;
 
-    case 3:
-      return PERIPHS_IO_MUX_U0TXD_U;
+  case 3:
+    return PERIPHS_IO_MUX_U0TXD_U;
   }
 }
 
-void pinMode(uint8_t pin, PinMode mode) {
+void pinMode(uint8_t pin, PinMode mode)
+{
   uint32_t pinRegister = GPIO_PIN_ADDR(GPIO_ID_PIN(pin));
 
-  switch (mode) {
-    case PinInput:
-    case PinInputPullUp:
-      gpio_output_set(0, 0, 0, BIT(pin));
-      break;
+  switch (mode)
+  {
+  case PinInput:
+  case PinInputPullUp:
+    gpio_output_set(0, 0, 0, BIT(pin));
+    break;
 
-    case PinOutput:
-      GPIO_REG_WRITE(GPIO_ENABLE_ADDRESS,
-                     GPIO_REG_READ(GPIO_ENABLE_ADDRESS) | BIT(pin));
-      break;
+  case PinOutput:
+    GPIO_REG_WRITE(GPIO_ENABLE_ADDRESS,
+                   GPIO_REG_READ(GPIO_ENABLE_ADDRESS) | BIT(pin));
+    break;
   }
 
-  if (mode == PinOpenDrain) {
+  if (mode == PinOpenDrain)
+  {
     GPIO_REG_WRITE(pinRegister,
                    GPIO_REG_READ(pinRegister) |
                        GPIO_PIN_PAD_DRIVER_SET(GPIO_PAD_DRIVER_ENABLE));
   }
 
-  if (mode == PinInputPullUp) {
+  if (mode == PinInputPullUp)
+  {
     PIN_PULLUP_EN(_pinName(pin));
-  } else {
+  }
+  else
+  {
     PIN_PULLUP_DIS(_pinName(pin));
   }
 }
@@ -157,9 +166,5 @@ void pinMode(uint8_t pin, PinMode mode) {
 bool isHigh(uint8_t pin) { return (gpio_input_get() >> pin) & BIT0; }
 
 bool isLow(uint8_t pin) { return !isHigh(pin); }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
