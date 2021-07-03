@@ -7,7 +7,7 @@
 #define MAX_SAFE_DELAY 1000UL
 #define MAX_QUEUE_SIZE 3
 
-void tick();
+void system_tick();
 void task_schedule(os_task_t task);
 void delay(uint16_t time);
 void delayMicroseconds(uint32_t time);
@@ -22,7 +22,7 @@ static int queueSize = 0;
 static os_event_t executionQueue[MAX_QUEUE_SIZE];
 static bool delayGuard = false;
 
-void ICACHE_FLASH_ATTR tick()
+void ICACHE_FLASH_ATTR system_tick()
 {
   if (!delayGuard)
   {
@@ -58,7 +58,7 @@ void ICACHE_FLASH_ATTR delay(uint16_t time)
   }
 
   delayGuard = false;
-  tick();
+  system_tick();
 }
 
 void delayMicroseconds(uint32_t time)

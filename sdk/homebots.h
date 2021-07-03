@@ -14,7 +14,7 @@ extern "C"
 {
 #endif
 
-#include "sdk.h"
+#include "sdk/sdk.h"
 
   void ICACHE_FLASH_ATTR user_init()
   {

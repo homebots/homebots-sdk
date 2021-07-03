@@ -25,8 +25,8 @@ typedef enum
 {
   PinInput = 0,
   PinOutput = 1,
-  PinOpenDrain = 3,
-  PinInputPullUp = 4,
+  PinOpenDrain = 2,
+  PinInputPullUp = 3,
 } PinMode;
 
 bool pinRead(uint8_t pin);
@@ -36,7 +36,23 @@ void pinType(uint8_t pin, uint8_t mode);
 bool isHigh(uint8_t pin);
 bool isLow(uint8_t pin);
 
-////
+uint32_t _pinName(uint8_t pin)
+{
+  switch (pin)
+  {
+  case 0:
+    return PERIPHS_IO_MUX_GPIO0_U;
+
+  case 1:
+    return PERIPHS_IO_MUX_U0TXD_U;
+
+  case 2:
+    return PERIPHS_IO_MUX_GPIO2_U;
+
+  case 3:
+    return PERIPHS_IO_MUX_U0RXD_U;
+  }
+}
 
 /**
  * @see
@@ -106,27 +122,9 @@ void pinWrite(uint8_t pin, bool value)
   GPIO_OUTPUT_SET(pin, value & 0x01);
 }
 
-void pinType(uint8_t pin, uint8_t mode)
+void pinType(uint8_t pin, uint8_t type)
 {
-  PIN_FUNC_SELECT(PERIPHS_IO_MUX + (pin * 4), mode);
-}
-
-uint32_t _pinName(uint8_t pin)
-{
-  switch (pin)
-  {
-  case 0:
-    return PERIPHS_IO_MUX_GPIO0_U;
-
-  case 1:
-    return PERIPHS_IO_MUX_U0RXD_U;
-
-  case 2:
-    return PERIPHS_IO_MUX_GPIO2_U;
-
-  case 3:
-    return PERIPHS_IO_MUX_U0TXD_U;
-  }
+  PIN_FUNC_SELECT(_pinName(pin), type);
 }
 
 void pinMode(uint8_t pin, PinMode mode)

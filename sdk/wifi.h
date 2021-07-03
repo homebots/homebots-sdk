@@ -5,7 +5,7 @@
 #include "mem.h"
 #include "osapi.h"
 #include "gpio.h"
-#include "serial-debug.h"
+#include "sdk/serial-debug.h"
 #include "user_interface.h"
 #include "missing-includes.h"
 

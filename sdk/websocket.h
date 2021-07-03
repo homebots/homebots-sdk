@@ -49,10 +49,10 @@ extern "C"
 #include "limits.h"
 #include "mem.h"
 #include "osapi.h"
-#include "serial-debug.h"
+#include "sdk/serial-debug.h"
 #include "stdarg.h"
 #include "stdlib.h"
-#include "string-extras.h"
+#include "sdk/string-extras.h"
 #include "user_interface.h"
 #include "libsha1.h"
 
@@ -388,16 +388,7 @@ extern "C"
     }
 
     while (b != NULL)
-    { // several frames can be present, b pointer will be moved
-      // to the next frame
-      LOG("b[0] = %d \n", b[0]);
-      LOG("b[1] = %d \n", b[1]);
-      LOG("b[2] = %d \n", b[2]);
-      LOG("b[3] = %d \n", b[3]);
-      LOG("b[4] = %d \n", b[4]);
-      LOG("b[5] = %d \n", b[5]);
-      LOG("b[6] = %d \n", b[6]);
-      LOG("b[7] = %d \n", b[7]);
+    { // several frames can be present, b pointer will be moved to the next frame
 
       int isFin = b[0] & 0x80 ? 1 : 0;
       int opCode = b[0] & 0x0f;
@@ -567,8 +558,8 @@ extern "C"
             return;
           }
 
-          memcpy(payload, b + bufOffset + extensionDataOffset,
-                 payloadLength - extensionDataOffset);
+          os_memcpy(payload, b + bufOffset + extensionDataOffset,
+                    payloadLength - extensionDataOffset);
           payload[payloadLength - extensionDataOffset] = '\0';
         }
 
