@@ -10,12 +10,6 @@
 char *ICACHE_FLASH_ATTR copyString(const char *string);
 char *ICACHE_FLASH_ATTR bufferToHex(unsigned char *buffer, char *output);
 
-// LOCAL char *ICACHE_FLASH_ATTR strcpy(char *dst, char *src) {
-//   while (*dst++ = *src++)
-//     ;
-//   return dst - 1;
-// }
-
 void zerofill(unsigned char *stream, int amount);
 int strcasecmp(const char *s1, const char *s2);
 
