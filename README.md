@@ -1,4 +1,4 @@
-# darlanalves/homebots-sdk
+# homebots-sdk
 
 A docker container to build binaries for esp8266 board + C++ utilities for low-level sensor integration.
 
