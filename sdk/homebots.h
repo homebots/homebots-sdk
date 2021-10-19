@@ -14,7 +14,7 @@ extern "C"
 {
 #endif
 
-#include "sdk/sdk.h"
+#include "sdk.h"
 
   void ICACHE_FLASH_ATTR user_init()
   {
@@ -25,6 +25,10 @@ extern "C"
     system_update_cpu_freq(SYS_CPU_160MHZ);
 
     setup();
+  }
+
+  void user_pre_init()
+  {
   }
 
 #ifdef __cplusplus

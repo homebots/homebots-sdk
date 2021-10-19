@@ -5,7 +5,7 @@
 #include "missing-includes.h"
 #include "ets_sys.h"
 #include "gpio.h"
-#include "sdk/pins.h"
+#include "pins.h"
 
 typedef void InterruptCallback();
 typedef enum

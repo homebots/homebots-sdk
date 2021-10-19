@@ -6,7 +6,7 @@
 #include "ip_addr.h"
 #include "espconn.h"
 #include "osapi.h"
-#include "sdk/serial-debug.h"
+#include "serial-debug.h"
 #include "user_interface.h"
 
 class TcpServer;
