@@ -53,10 +53,10 @@ extern "C"
 #include "limits.h"
 #include "mem.h"
 #include "osapi.h"
-#include "sdk/serial-debug.h"
+#include "serial-debug.h"
 #include "stdarg.h"
 #include "stdlib.h"
-#include "sdk/string-extras.h"
+#include "string-extras.h"
 #include "user_interface.h"
 #include "libsha1.h"
 
@@ -502,7 +502,7 @@ extern "C"
           if (ws->payloadBuffer == NULL)
           {
             WS_LOG("Got FIN continuation frame but didn't receive any beforehand, "
-                "disconnecting...\n");
+                   "disconnecting...\n");
 
             ws->knownFailureCode = -15;
             if (ws->isSecure)
@@ -545,7 +545,7 @@ extern "C"
           {
             unsigned int reasonCode = b[bufOffset] << 8 + b[bufOffset + 1];
             WS_LOG("Closing due to: %d\n",
-                reasonCode); // Must not be shown to client as per spec
+                   reasonCode); // Must not be shown to client as per spec
             extensionDataOffset += 2;
           }
 
@@ -570,7 +570,7 @@ extern "C"
         if (opCode == WS_OPCODE_CLOSE)
         {
           WS_LOG("Closing message: %s\n",
-              payload); // Must not be shown to client as per spec
+                 payload); // Must not be shown to client as per spec
 
           espconn_regist_sentcb(conn, ws_closeSentCallback);
           ws_sendFrame(conn, WS_OPCODE_CLOSE, (const char *)(b + bufOffset),
