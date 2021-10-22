@@ -47,17 +47,17 @@ extern "C"
 {
 #endif
 
-#include "c_types.h"
+#include <stdarg.h>
+#include <stdlib.h>
+// #include "c_types.h"
 #include "ip_addr.h"
 #include "espconn.h"
-#include "limits.h"
+// #include "limits.h"
 #include "mem.h"
 #include "osapi.h"
-#include "serial-debug.h"
-#include "stdarg.h"
-#include "stdlib.h"
-#include "string-extras.h"
-#include "user_interface.h"
+// #include "serial-debug.h"
+// #include "string-extras.h"
+// #include "user_interface.h"
 #include "libsha1.h"
 
   struct ws_info;
@@ -382,7 +382,7 @@ extern "C"
           espconn_disconnect(conn);
         return;
       }
-      memcpy(ws->frameBuffer + ws->frameBufferLen, b, len);
+      os_memcpy(ws->frameBuffer + ws->frameBufferLen, b, len);
 
       ws->frameBufferLen += len;
 
@@ -853,7 +853,7 @@ extern "C"
     }
 
     // Extract path - it should start with '/'
-    char *path = (char *)os_strchr(url, '/');
+    char *path = (char *)strchr(url, '/');
 
     // Extract hostname, possibly including port
     char hostname[256];

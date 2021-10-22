@@ -1,0 +1,9 @@
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Self-test
+        run: docker run --rm -v$PWD/tests/hello-world:/home/project -v $PWD:/home/xtensa-gcc/homebots homebotz/xtensa-gcc make

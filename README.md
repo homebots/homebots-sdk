@@ -1,8 +1,6 @@
-# homebots-sdk
+# Extensions to ESP Non-OS SDK
 
-A docker container to build binaries for esp8266 board + C++ utilities for low-level sensor integration.
-
-This is built on top of [another container with just the compiler](https://github.com/homebots/docker-espbuild)
+These are the additions to the [xtensa-gcc image](https://github.com/homebots/docker-xtensa-gcc)
 
 ## Usage
 
@@ -15,7 +13,7 @@ A project looks like this:
 ```
 -- Makefile
 -- src/
- |-- index.c
+ |-- index.cpp
  |
 -- includes/
  |-- lib.h
@@ -23,7 +21,7 @@ A project looks like this:
 
 ```
 
-You can copy the "example" folder as a starting point.
+You can check the tests folder for samples of how to use the project.
 
 ### Build and flash
 

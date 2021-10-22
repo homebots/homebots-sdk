@@ -2,3 +2,5 @@
 .vscode
 tmp
 wip
+build/
+firmware/

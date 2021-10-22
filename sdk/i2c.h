@@ -28,7 +28,6 @@
 #define __I2C_MASTER_H__
 
 #include "c_types.h"
-#include "missing-includes.h"
 #include "ets_sys.h"
 #include "gpio.h"
 #include "osapi.h"

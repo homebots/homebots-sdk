@@ -2,11 +2,9 @@
 #define _ESP_PINS_
 
 #include "c_types.h"
-#include "missing-includes.h"
 #include "eagle_soc.h"
 #include "ets_sys.h"
 #include "gpio.h"
-#include "missing-includes.h"
 #include "osapi.h"
 
 #define PIN_0 0
