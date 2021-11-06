@@ -56,7 +56,7 @@ extern "C"
 #include "mem.h"
 #include "osapi.h"
 // #include "serial-debug.h"
-// #include "string-extras.h"
+#include "string-extras.h"
 // #include "user_interface.h"
 #include "libsha1.h"
 
