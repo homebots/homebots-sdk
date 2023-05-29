@@ -34,6 +34,7 @@ char *ICACHE_FLASH_ATTR bufferToHex(unsigned char *buffer, char *output)
   }
 
   *output = 0;
+  return output;
 }
 
 int strcasecmp(const char *string1, const char *string2)

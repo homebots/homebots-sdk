@@ -142,7 +142,7 @@ void ICACHE_FLASH_ATTR i2c_gpio_init()
   i2c_init();
 }
 
-uint8_t ICACHE_FLASH_ATTR i2c_setAck(uint8_t level)
+void ICACHE_FLASH_ATTR i2c_setAck(uint8_t level)
 {
   i2c_setDataAndClock(m_nLastSDA, 0);
   i2c_setDataAndClock(level, 0);

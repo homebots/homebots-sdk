@@ -50,6 +50,8 @@ uint32_t _pinName(uint8_t pin)
   case 3:
     return PERIPHS_IO_MUX_U0RXD_U;
   }
+
+  return 0;
 }
 
 /**

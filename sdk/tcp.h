@@ -114,7 +114,10 @@ void TcpServer::connect(int port_)
   LOG("Listening on %d\n", port);
 }
 
-int TcpServer::send(uint8_t *data) { send(data, os_strlen((const char *)data)); }
+int TcpServer::send(uint8_t *data)
+{
+  return send(data, os_strlen((const char *)data));
+}
 
 int TcpServer::send(uint8_t *data, uint16 length)
 {
@@ -125,6 +128,7 @@ int TcpServer::send(uint8_t *data, uint16 length)
   }
 
   LOG("Can't write, server is disconnected!\n");
+  return 0;
 }
 
 bool TcpServer::isConnected()
@@ -137,6 +141,9 @@ void TcpServer::close()
   espconn_disconnect(&connection);
 }
 
-uint8 TcpServer::getState() { return connection.state; }
+uint8 TcpServer::getState()
+{
+  return connection.state;
+}
 
 #endif
