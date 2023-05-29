@@ -203,6 +203,7 @@ void Wifi::startAccessPoint(const char *ssid)
 
 void Wifi::startAccessPoint(const char *ssid, const char *password)
 {
+  LOG("AP mode\n %s %s", ssid, password);
   softap_config config;
 
   if (ssid == NULL)
@@ -211,7 +212,6 @@ void Wifi::startAccessPoint(const char *ssid, const char *password)
   }
 
   os_strcpy((char *)config.ssid, ssid);
-  os_strcpy((char *)config.password, password);
 
   LOG("SSID %s\n", config.ssid);
 
@@ -221,6 +221,7 @@ void Wifi::startAccessPoint(const char *ssid, const char *password)
   if (password != NULL)
   {
     config.authmode = AUTH_WPA2_PSK;
+    os_strcpy((char *)config.password, password);
     LOG("PWD %s\n", config.password);
   }
   else
