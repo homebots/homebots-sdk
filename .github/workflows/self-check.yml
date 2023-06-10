@@ -6,4 +6,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Self-test
-        run: docker run --rm -v$PWD/tests/hello-world:/home/project -v $PWD:/home/xtensa-gcc/homebots homebotz/xtensa-gcc make
+        run: docker run --rm -v$PWD/tests/hello-world:/home/project -v$PWD:/home/homebots-sdk ghcr.io/homebots/xtensa-gcc make

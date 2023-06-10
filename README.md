@@ -44,7 +44,7 @@ brew install esptool
 
 Then, from a terminal, just run the `make` commands from your project's folder.
 
-> You don't really need "make" installed in order to build.
+> Tip: you don't really need "make" installed in order to build.
 > Just look at the commands inside the example Makefile to build without `make`
 
 ```
@@ -56,7 +56,7 @@ CC project/src/index.c
 AR project/build/esp8266_app.a
 LD project/build/esp8266.out
 FW project/firmware/
-esptool.py v1.2
+esptool.py vx.y
 
 // then flash your rom to the defaults
 make flash
