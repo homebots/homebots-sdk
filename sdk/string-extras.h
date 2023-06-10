@@ -7,7 +7,7 @@
 #include "mem.h"
 #include "osapi.h"
 
-char *ICACHE_FLASH_ATTR copyString(const char *string)
+char* MOVE_TO_FLASH copyString(const char *string)
 {
   int length = os_strlen(string) + 1;
   char *copy = (char *)os_zalloc(length);
@@ -20,7 +20,7 @@ char *ICACHE_FLASH_ATTR copyString(const char *string)
   return copy;
 }
 
-char *ICACHE_FLASH_ATTR bufferToHex(unsigned char *buffer, char *output)
+char* MOVE_TO_FLASH bufferToHex(unsigned char *buffer, char *output)
 {
   int length = os_strlen((const char *)buffer);
   unsigned char *input = buffer;
@@ -37,7 +37,7 @@ char *ICACHE_FLASH_ATTR bufferToHex(unsigned char *buffer, char *output)
   return output;
 }
 
-int strcasecmp(const char *string1, const char *string2)
+int MOVE_TO_FLASH strcasecmp(const char *string1, const char *string2)
 {
   int offset, ch;
   unsigned char a, b;

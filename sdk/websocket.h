@@ -49,15 +49,11 @@ extern "C"
 
 #include <stdarg.h>
 #include <stdlib.h>
-// #include "c_types.h"
 #include "ip_addr.h"
 #include "espconn.h"
-// #include "limits.h"
 #include "mem.h"
 #include "osapi.h"
-// #include "serial-debug.h"
 #include "string-extras.h"
-// #include "user_interface.h"
 #include "libsha1.h"
 
   struct ws_info;
@@ -130,7 +126,7 @@ extern "C"
 #define WS_FORCE_CLOSE_TIMEOUT_MS 5 * 1000
 #define WS_UNHEALTHY_THRESHOLD 2
 
-  char *ICACHE_FLASH_ATTR
+  char *MOVE_TO_FLASH
   cryptoSha1(char *data, unsigned int len)
   {
     SHA1_CTX ctx;
@@ -146,7 +142,7 @@ extern "C"
   const char *bytes64 =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-  char *ICACHE_FLASH_ATTR base64Encode(char *data, unsigned int len)
+  char *MOVE_TO_FLASH base64Encode(char *data, unsigned int len)
   {
     int blen = (len + 2) / 3 * 4;
 
@@ -167,7 +163,7 @@ extern "C"
     return out; // Requires free
   }
 
-  void ICACHE_FLASH_ATTR generateSecKeys(char **key, char **expectedKey)
+  void MOVE_TO_FLASH generateSecKeys(char **key, char **expectedKey)
   {
     char rndData[16];
     int i;
@@ -189,7 +185,7 @@ extern "C"
     os_free(keyEncrypted);
   }
 
-  char ICACHE_FLASH_ATTR *sprintf_headers(char *buf, ...)
+  char MOVE_TO_FLASH *sprintf_headers(char *buf, ...)
   {
     char *dst = buf;
     va_list args;
@@ -231,7 +227,7 @@ extern "C"
     return dst;
   }
 
-  void ICACHE_FLASH_ATTR ws_closeSentCallback(void *arg)
+  void MOVE_TO_FLASH ws_closeSentCallback(void *arg)
   {
     struct espconn *conn = (struct espconn *)arg;
     ws_info *ws = (ws_info *)conn->reverse;
@@ -249,9 +245,9 @@ extern "C"
       espconn_disconnect(conn);
   }
 
-  void ICACHE_FLASH_ATTR ws_sendFrame(struct espconn *conn, int opCode,
-                                      const char *data,
-                                      unsigned short len)
+  void MOVE_TO_FLASH ws_sendFrame(struct espconn *conn, int opCode,
+                                  const char *data,
+                                  unsigned short len)
   {
     WS_LOG("ws_sendFrame %d %d\n", opCode, len);
     ws_info *ws = (ws_info *)conn->reverse;
@@ -332,7 +328,7 @@ extern "C"
     os_free(b);
   }
 
-  void ICACHE_FLASH_ATTR ws_sendPingTimeout(void *arg)
+  void MOVE_TO_FLASH ws_sendPingTimeout(void *arg)
   {
     struct espconn *conn = (struct espconn *)arg;
     ws_info *ws = (ws_info *)conn->reverse;
@@ -353,8 +349,8 @@ extern "C"
     ws->unhealthyPoints += 1;
   }
 
-  void ICACHE_FLASH_ATTR ws_receiveCallback(void *arg, char *buf,
-                                            unsigned short len)
+  void MOVE_TO_FLASH ws_receiveCallback(void *arg, char *buf,
+                                        unsigned short len)
   {
     struct espconn *conn = (struct espconn *)arg;
     ws_info *ws = (ws_info *)conn->reverse;
@@ -638,8 +634,8 @@ extern "C"
     }
   }
 
-  void ICACHE_FLASH_ATTR ws_initReceiveCallback(void *arg, char *buf,
-                                                unsigned short len)
+  void MOVE_TO_FLASH ws_initReceiveCallback(void *arg, char *buf,
+                                            unsigned short len)
   {
     WS_LOG("ws_initReceiveCallback %d \n", len);
     struct espconn *conn = (struct espconn *)arg;
@@ -761,7 +757,7 @@ extern "C"
     }
   }
 
-  void ICACHE_FLASH_ATTR ws_connectTimeout(void *arg)
+  void MOVE_TO_FLASH ws_connectTimeout(void *arg)
   {
     struct espconn *conn = (struct espconn *)arg;
     ws_info *ws = (ws_info *)conn->reverse;
@@ -770,7 +766,7 @@ extern "C"
     disconnect_callback(arg);
   }
 
-  void ICACHE_FLASH_ATTR error_callback(void *arg, sint8 errType)
+  void MOVE_TO_FLASH error_callback(void *arg, sint8 errType)
   {
     struct espconn *conn = (struct espconn *)arg;
     ws_info *ws = (ws_info *)conn->reverse;
@@ -779,8 +775,8 @@ extern "C"
     disconnect_callback(arg);
   }
 
-  void ICACHE_FLASH_ATTR dns_callback(const char *hostname,
-                                      ip_addr_t *addr, void *arg)
+  void MOVE_TO_FLASH dns_callback(const char *hostname,
+                                  ip_addr_t *addr, void *arg)
   {
     struct espconn *conn = (struct espconn *)arg;
     ws_info *ws = (ws_info *)conn->reverse;
@@ -822,7 +818,7 @@ extern "C"
     WS_LOG("DNS found %s " IPSTR " \n", hostname, IP2STR(addr));
   }
 
-  void ICACHE_FLASH_ATTR ws_connect(ws_info *ws, const char *url)
+  void MOVE_TO_FLASH ws_connect(ws_info *ws, const char *url)
   {
     if (ws == NULL)
     {
@@ -949,7 +945,7 @@ extern "C"
     ws_sendFrame(ws->conn, opCode, message, length);
   }
 
-  void ICACHE_FLASH_ATTR ws_forceCloseTimeout(void *arg)
+  void MOVE_TO_FLASH ws_forceCloseTimeout(void *arg)
   {
     WS_LOG("ws_forceCloseTimeout\n");
     struct espconn *conn = (struct espconn *)arg;
@@ -966,7 +962,7 @@ extern "C"
       espconn_disconnect(ws->conn);
   }
 
-  void ICACHE_FLASH_ATTR ws_close(ws_info *ws)
+  void MOVE_TO_FLASH ws_close(ws_info *ws)
   {
     WS_LOG("ws_close\n");
 

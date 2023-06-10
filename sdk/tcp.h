@@ -9,102 +9,79 @@
 #include "serial-debug.h"
 #include "user_interface.h"
 
-class TcpServer;
+typedef void (*TcpConnectCallback)(TCP *connection);
+typedef void (*TcpDisconnectCallback)(TCP *connection);
+typedef void (*TcpErrorCallback)(TCP *connection, signed char error);
+typedef void (*TcpReceiveCallback)(TCP *connection, char *data, uint16_t len);
 
-typedef void (*TcpConnectCallback)(TcpServer *server);
-typedef void (*TcpDisconnectCallback)(TcpServer *server);
-typedef void (*TcpErrorCallback)(TcpServer *server, signed char error);
-typedef void (*TcpReceiveCallback)(TcpServer *server, char *data, uint16_t len);
-
-class TcpServer
+typedef struct
 {
-public:
+  int port;
+  struct espconn esp;
+  esp_tcp tcp;
   TcpReceiveCallback onReceive;
   TcpConnectCallback onConnect;
   TcpDisconnectCallback onDisconnect;
   TcpErrorCallback onError;
+} TCP;
 
-  TcpServer();
-  void connect(int port);
-  int send(uint8_t *data);
-  int send(uint8_t *data, uint16 length);
-  void close();
-  bool isConnected();
-  uint8 getState();
-
-private:
-  int port;
-  struct espconn connection;
-  esp_tcp tcp;
-};
-
-////
-
-LOCAL void ICACHE_FLASH_ATTR _onReceive(void *arg, char *data,
-                                        uint16_t length)
+static void MOVE_TO_FLASH _onReceive(void *arg, char *data,
+                                     uint16_t length)
 {
-  struct espconn *connection = (struct espconn *)arg;
-  TcpServer *server = (TcpServer *)connection->reverse;
+  struct espconn *esp = (struct espconn *)arg;
+  TCP *connection = (TCP *)esp->reverse;
 
   LOG("Received %d bytes from " IPSTR " \n", length,
-      IP2STR(connection->proto.tcp->remote_ip));
+      IP2STR(connection.tcp->remote_ip));
 
-  if (server->onReceive)
+  if (connection->onReceive != NULL)
   {
-    server->onReceive(server, data, length);
+    connection->onReceive(connection, data, length);
   }
 }
 
-LOCAL void ICACHE_FLASH_ATTR _onSendCompleted(void *arg)
+static void MOVE_TO_FLASH _onSendCompleted(void *arg)
 {
-  struct espconn *connection = (struct espconn *)arg;
-  TcpServer *server = (TcpServer *)connection->reverse;
-  server->close();
+  struct espconn *esp = (struct espconn *)arg;
+  TCP *connection = (TCP *)esp->reverse;
+  tcp_close(connection);
 }
 
-LOCAL void ICACHE_FLASH_ATTR _onConnect(void *arg)
+static void MOVE_TO_FLASH _onConnect(void *arg)
 {
-  struct espconn *connection = (struct espconn *)arg;
-  TcpServer *server = (TcpServer *)connection->reverse;
+  struct espconn *esp = (struct espconn *)arg;
+  TCP *connection = (TCP *)esp->reverse;
 
   LOG("connected\n");
-  espconn_regist_recvcb(connection, (espconn_recv_callback)_onReceive);
+  espconn_regist_recvcb(esp, (espconn_recv_callback)_onReceive);
 
-  if (server->onConnect)
+  if (connection->onConnect)
   {
-    server->onConnect(server);
+    connection->onConnect(connection);
   }
 }
 
-LOCAL void ICACHE_FLASH_ATTR _onDisconnect(void *arg)
+static void MOVE_TO_FLASH _onDisconnect(void *arg)
 {
-  struct espconn *connection = (struct espconn *)arg;
-  TcpServer *server = (TcpServer *)connection->reverse;
+  struct espconn *esp = (struct espconn *)arg;
+  TCP *connection = (TCP *)esp->reverse;
 
   LOG("disconnected\n");
-  if (server->onDisconnect)
+  if (connection->onDisconnect)
   {
-    server->onDisconnect(server);
+    connection->onDisconnect(connection);
   }
 }
 
-TcpServer::TcpServer()
-{
-  onReceive = 0;
-  onConnect = 0;
-  onDisconnect = 0;
-  onError = 0;
-}
-
-void TcpServer::connect(int port_)
+void MOVE_TO_FLASH tcp_connect(TCP *connection, int port)
 {
   LOG("\n\nConnecting...\n");
-  port = port_;
-  tcp.local_port = port_;
-  connection.state = ESPCONN_NONE;
-  connection.type = ESPCONN_TCP;
-  connection.proto.tcp = &tcp;
-  connection.reverse = (void *)this;
+  connection.tcp.local_port = port;
+  espconn *esp = connection->esp;
+  esp.state = ESPCONN_NONE;
+  esp.type = ESPCONN_TCP;
+  esp.proto.tcp = &tcp;
+  esp.reverse = (void *)this;
 
   espconn_regist_connectcb(&connection, (espconn_connect_callback)_onConnect);
   espconn_regist_disconcb(&connection, (espconn_connect_callback)_onDisconnect);
@@ -114,12 +91,12 @@ void TcpServer::connect(int port_)
   LOG("Listening on %d\n", port);
 }
 
-int TcpServer::send(uint8_t *data)
+int MOVE_TO_FLASH tcp_send(TCP *connection, uint8_t *data)
 {
   return send(data, os_strlen((const char *)data));
 }
 
-int TcpServer::send(uint8_t *data, uint16 length)
+int MOVE_TO_FLASH tcp_send(TCP *connection, uint8_t *data, uint16 length)
 {
   if (isConnected())
   {
@@ -131,17 +108,17 @@ int TcpServer::send(uint8_t *data, uint16 length)
   return 0;
 }
 
-bool TcpServer::isConnected()
+bool MOVE_TO_FLASH tcp_isConnected(TCP *connection)
 {
   return connection.state != ESPCONN_CLOSE && connection.state != ESPCONN_NONE;
 }
 
-void TcpServer::close()
+void MOVE_TO_FLASH tcp_close(TCP *connection)
 {
   espconn_disconnect(&connection);
 }
 
-uint8 TcpServer::getState()
+uint8 MOVE_TO_FLASH tcp_getState(TCP *connection)
 {
   return connection.state;
 }

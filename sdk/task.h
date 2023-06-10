@@ -22,7 +22,7 @@ static int queueSize = 0;
 static os_event_t executionQueue[MAX_QUEUE_SIZE];
 static bool delayGuard = false;
 
-void ICACHE_FLASH_ATTR system_tick()
+void MOVE_TO_FLASH system_tick()
 {
   if (!delayGuard)
   {
@@ -30,13 +30,13 @@ void ICACHE_FLASH_ATTR system_tick()
   }
 }
 
-void task_schedule(os_task_t task)
+void MOVE_TO_FLASH task_schedule(os_task_t task)
 {
   queueSize++;
   system_os_task(task, USER_TASK_PRIO_0, executionQueue, queueSize);
 }
 
-void ICACHE_FLASH_ATTR delay(uint16_t time)
+void MOVE_TO_FLASH delay(uint16_t time)
 {
   delayGuard = true;
 
@@ -61,7 +61,7 @@ void ICACHE_FLASH_ATTR delay(uint16_t time)
   system_tick();
 }
 
-void delayMicroseconds(uint32_t time)
+void MOVE_TO_FLASH delayMicroseconds(uint32_t time)
 {
   delayGuard = true;
   os_delay_us(time);
