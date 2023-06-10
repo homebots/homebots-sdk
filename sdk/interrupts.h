@@ -29,7 +29,7 @@ void armInterrupts()
 
 void disarmInterrupts()
 {
-  ETS_GPIO_INTR_ATTACH(NULL, NULL);
+  ETS_GPIO_INTR_ATTACH((ets_isr_t)NULL, NULL);
   ETS_GPIO_INTR_DISABLE();
 }
 
