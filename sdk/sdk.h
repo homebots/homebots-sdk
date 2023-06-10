@@ -1,21 +1,22 @@
 #ifndef _ESP_SDK_
 #define _ESP_SDK_
 
+#define MOVE_TO_FLASH ICACHE_FLASH_ATTR
+
 #include "c_types.h"
 #include "ets_sys.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "interrupts.h"
 #include "mem.h"
-#include "missing-includes.h"
 #include "osapi.h"
-#include "sdk/pins.h"
-#include "sdk/serial-debug.h"
-#include "sdk/string-extras.h"
-#include "sdk/task.h"
-#include "sdk/tcp.h"
-// #include "time.h"
+#include "pins.h"
+#include "serial-debug.h"
+#include "string-extras.h"
+#include "task.h"
+// #include "tcp.h"
 #include "user_interface.h"
-#include "sdk/websocket.h"
-#include "sdk/wifi.h"
+#include "websocket.h"
+#include "wifi.h"
 
 #endif

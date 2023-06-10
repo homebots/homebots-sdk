@@ -28,7 +28,6 @@
 #define __I2C_MASTER_H__
 
 #include "c_types.h"
-#include "missing-includes.h"
 #include "ets_sys.h"
 #include "gpio.h"
 #include "osapi.h"
@@ -50,7 +49,7 @@ static uint8_t dataPin = 2;
 static uint8_t m_nLastSDA;
 static uint8_t m_nLastSCL;
 
-static void ICACHE_FLASH_ATTR i2c_setDataAndClock(uint8_t SDA, uint8_t SCL)
+static void MOVE_TO_FLASH i2c_setDataAndClock(uint8_t SDA, uint8_t SCL)
 {
   SDA &= 0x01;
   SCL &= 0x01;
@@ -77,26 +76,26 @@ static void ICACHE_FLASH_ATTR i2c_setDataAndClock(uint8_t SDA, uint8_t SCL)
   os_delay_us(5);
 }
 
-uint8_t ICACHE_FLASH_ATTR i2c_getDC(void)
+uint8_t MOVE_TO_FLASH i2c_getDC(void)
 {
   return GPIO_INPUT_GET(GPIO_ID_PIN(dataPin));
 }
 
-void ICACHE_FLASH_ATTR i2c_start()
+void MOVE_TO_FLASH i2c_start()
 {
   i2c_setDataAndClock(1, m_nLastSCL);
   i2c_setDataAndClock(1, 1);
   i2c_setDataAndClock(0, 1);
 }
 
-void ICACHE_FLASH_ATTR i2c_stop()
+void MOVE_TO_FLASH i2c_stop()
 {
   i2c_setDataAndClock(0, m_nLastSCL);
   i2c_setDataAndClock(0, 1);
   i2c_setDataAndClock(1, 1);
 }
 
-void ICACHE_FLASH_ATTR i2c_init(void)
+void MOVE_TO_FLASH i2c_init(void)
 {
   uint8_t i;
 
@@ -116,7 +115,7 @@ void ICACHE_FLASH_ATTR i2c_init(void)
   i2c_stop();
 }
 
-void ICACHE_FLASH_ATTR i2c_gpio_init()
+void MOVE_TO_FLASH i2c_gpio_init()
 {
   ETS_GPIO_INTR_DISABLE();
 
@@ -143,7 +142,7 @@ void ICACHE_FLASH_ATTR i2c_gpio_init()
   i2c_init();
 }
 
-uint8_t ICACHE_FLASH_ATTR i2c_setAck(uint8_t level)
+void MOVE_TO_FLASH i2c_setAck(uint8_t level)
 {
   i2c_setDataAndClock(m_nLastSDA, 0);
   i2c_setDataAndClock(level, 0);
@@ -153,7 +152,7 @@ uint8_t ICACHE_FLASH_ATTR i2c_setAck(uint8_t level)
   i2c_setDataAndClock(1, 0);
 }
 
-uint8_t ICACHE_FLASH_ATTR i2c_getAck(void)
+uint8_t MOVE_TO_FLASH i2c_getAck(void)
 {
   uint8_t retVal;
   i2c_setDataAndClock(m_nLastSDA, 0);
@@ -165,7 +164,7 @@ uint8_t ICACHE_FLASH_ATTR i2c_getAck(void)
   return retVal;
 }
 
-bool ICACHE_FLASH_ATTR i2c_checkAck(void)
+bool MOVE_TO_FLASH i2c_checkAck(void)
 {
   if (i2c_getAck())
   {
@@ -177,11 +176,11 @@ bool ICACHE_FLASH_ATTR i2c_checkAck(void)
   }
 }
 
-void ICACHE_FLASH_ATTR i2c_send_ack() { i2c_setAck(0x0); }
+void MOVE_TO_FLASH i2c_send_ack() { i2c_setAck(0x0); }
 
-void ICACHE_FLASH_ATTR i2c_send_nack() { i2c_setAck(0x1); }
+void MOVE_TO_FLASH i2c_send_nack() { i2c_setAck(0x1); }
 
-uint8_t ICACHE_FLASH_ATTR i2c_readByte()
+uint8_t MOVE_TO_FLASH i2c_readByte()
 {
   uint8 retVal = 0;
   uint8 k, i;
@@ -208,7 +207,7 @@ uint8_t ICACHE_FLASH_ATTR i2c_readByte()
   return retVal;
 }
 
-void ICACHE_FLASH_ATTR i2c_writeByte(uint8_t byte)
+void MOVE_TO_FLASH i2c_writeByte(uint8_t byte)
 {
   uint8_t bit;
   sint8_t i;
@@ -230,7 +229,7 @@ void ICACHE_FLASH_ATTR i2c_writeByte(uint8_t byte)
   }
 }
 
-void ICACHE_FLASH_ATTR i2c_writeByteAndAck(uint8_t byte)
+void MOVE_TO_FLASH i2c_writeByteAndAck(uint8_t byte)
 {
   bool ack;
 
@@ -238,7 +237,7 @@ void ICACHE_FLASH_ATTR i2c_writeByteAndAck(uint8_t byte)
   ack = i2c_checkAck();
 }
 
-void ICACHE_FLASH_ATTR i2c_findDevices(uint8_t *devices)
+void MOVE_TO_FLASH i2c_findDevices(uint8_t *devices)
 {
   uint8_t i;
 
@@ -260,7 +259,7 @@ void ICACHE_FLASH_ATTR i2c_findDevices(uint8_t *devices)
   }
 }
 
-uint8_t ICACHE_FLASH_ATTR i2c_findDevice()
+uint8_t MOVE_TO_FLASH i2c_findDevice()
 {
   uint8_t i;
 

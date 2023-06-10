@@ -5,9 +5,8 @@
 #include "mem.h"
 #include "osapi.h"
 #include "gpio.h"
-#include "sdk/serial-debug.h"
+#include "serial-debug.h"
 #include "user_interface.h"
-#include "missing-includes.h"
 
 class Wifi
 {
@@ -42,7 +41,7 @@ void _getMacAddress(char *address)
 
 LOCAL bss_info *lastScan = 0;
 
-void ICACHE_FLASH_ATTR _onScanCompleted(bss_info *result, STATUS status)
+void _onScanCompleted(bss_info *result, STATUS status)
 {
   if (status != OK)
   {
@@ -77,12 +76,12 @@ void ICACHE_FLASH_ATTR _onScanCompleted(bss_info *result, STATUS status)
   }
 }
 
-void Wifi::connectTo(const char *ssid, const char *password)
+void MOVE_TO_FLASH Wifi::connectTo(const char *ssid, const char *password)
 {
   connectTo(ssid, password, false);
 }
 
-void Wifi::connectTo(const char *ssid, const char *password, bool storeCredentials)
+void MOVE_TO_FLASH Wifi::connectTo(const char *ssid, const char *password, bool storeCredentials)
 {
   station_config wifiConfiguration;
   os_memcpy(wifiConfiguration.ssid, ssid, 32);
@@ -103,7 +102,7 @@ void Wifi::connectTo(const char *ssid, const char *password, bool storeCredentia
   wifi_station_connect();
 }
 
-void Wifi::disconnect()
+void MOVE_TO_FLASH Wifi::disconnect()
 {
   station_config wifiConfiguration;
   wifiConfiguration.ssid[0] = '\0';
@@ -115,17 +114,17 @@ void Wifi::disconnect()
   wifi_station_set_config_current(&wifiConfiguration);
 }
 
-uint8_t Wifi::getStatus()
+uint8_t MOVE_TO_FLASH Wifi::getStatus()
 {
   return wifi_station_get_connect_status();
 }
 
-bool Wifi::isConnected()
+bool MOVE_TO_FLASH Wifi::isConnected()
 {
   return wifi_station_get_connect_status() == STATION_GOT_IP;
 }
 
-void Wifi::printStationStatus()
+void MOVE_TO_FLASH Wifi::printStationStatus()
 {
   uint8 clients = wifi_softap_get_station_num();
   // LOG("SSID: %d\n", info->bssid);
@@ -156,19 +155,19 @@ void Wifi::printStationStatus()
   wifi_softap_free_station_info();
 }
 
-void Wifi::getMacAddress(char *mac)
+void MOVE_TO_FLASH Wifi::getMacAddress(char *mac)
 {
   _getMacAddress(mac);
 }
 
-void Wifi::printMacAddress()
+void MOVE_TO_FLASH Wifi::printMacAddress()
 {
   char mac[18] = {0};
   _getMacAddress(mac);
   LOG("MAC: %s\n", mac);
 }
 
-void Wifi::printStatus()
+void MOVE_TO_FLASH Wifi::printStatus()
 {
   LOG("WIFI:");
 
@@ -192,18 +191,19 @@ void Wifi::printStatus()
   }
 }
 
-void Wifi::startAccessPoint()
+void MOVE_TO_FLASH Wifi::startAccessPoint()
 {
   startAccessPoint(NULL, NULL);
 }
 
-void Wifi::startAccessPoint(const char *ssid)
+void MOVE_TO_FLASH Wifi::startAccessPoint(const char *ssid)
 {
   startAccessPoint(ssid, NULL);
 }
 
-void Wifi::startAccessPoint(const char *ssid, const char *password)
+void MOVE_TO_FLASH Wifi::startAccessPoint(const char *ssid, const char *password)
 {
+  LOG("AP mode\n %s %s", ssid, password);
   softap_config config;
 
   if (ssid == NULL)
@@ -212,7 +212,6 @@ void Wifi::startAccessPoint(const char *ssid, const char *password)
   }
 
   os_strcpy((char *)config.ssid, ssid);
-  os_strcpy((char *)config.password, password);
 
   LOG("SSID %s\n", config.ssid);
 
@@ -222,6 +221,7 @@ void Wifi::startAccessPoint(const char *ssid, const char *password)
   if (password != NULL)
   {
     config.authmode = AUTH_WPA2_PSK;
+    os_strcpy((char *)config.password, password);
     LOG("PWD %s\n", config.password);
   }
   else
@@ -246,7 +246,7 @@ void Wifi::startAccessPoint(const char *ssid, const char *password)
   }
 }
 
-void Wifi::stopAccessPoint()
+void MOVE_TO_FLASH Wifi::stopAccessPoint()
 {
   struct softap_config conf;
 
@@ -260,7 +260,7 @@ void Wifi::stopAccessPoint()
   ETS_UART_INTR_ENABLE();
 }
 
-void Wifi::useStatusLed(uint8_t ioPin)
+void MOVE_TO_FLASH Wifi::useStatusLed(uint8_t ioPin)
 {
   switch (ioPin)
   {
@@ -273,12 +273,12 @@ void Wifi::useStatusLed(uint8_t ioPin)
   }
 }
 
-void Wifi::scan()
+void MOVE_TO_FLASH Wifi::scan()
 {
   wifi_station_scan(NULL, (scan_done_cb_t)_onScanCompleted);
 }
 
-bss_info *Wifi::getWifiList()
+bss_info *MOVE_TO_FLASH Wifi::getWifiList()
 {
   return lastScan;
 }

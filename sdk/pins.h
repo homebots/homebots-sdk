@@ -2,11 +2,9 @@
 #define _ESP_PINS_
 
 #include "c_types.h"
-#include "missing-includes.h"
 #include "eagle_soc.h"
 #include "ets_sys.h"
 #include "gpio.h"
-#include "missing-includes.h"
 #include "osapi.h"
 
 #define PIN_0 0
@@ -29,12 +27,12 @@ typedef enum
   PinInputPullUp = 3,
 } PinMode;
 
-bool pinRead(uint8_t pin);
-void pinWrite(uint8_t pin, bool value);
-void pinMode(uint8_t pin, PinMode mode);
-void pinType(uint8_t pin, uint8_t mode);
-bool isHigh(uint8_t pin);
-bool isLow(uint8_t pin);
+bool MOVE_TO_FLASH pinRead(uint8_t pin);
+void MOVE_TO_FLASH pinWrite(uint8_t pin, bool value);
+void MOVE_TO_FLASH pinMode(uint8_t pin, PinMode mode);
+void MOVE_TO_FLASH pinType(uint8_t pin, uint8_t mode);
+bool MOVE_TO_FLASH isHigh(uint8_t pin);
+bool MOVE_TO_FLASH isLow(uint8_t pin);
 
 uint32_t _pinName(uint8_t pin)
 {
@@ -52,6 +50,8 @@ uint32_t _pinName(uint8_t pin)
   case 3:
     return PERIPHS_IO_MUX_U0RXD_U;
   }
+
+  return 0;
 }
 
 /**
@@ -105,7 +105,7 @@ uint32_t _pinName(uint8_t pin)
  *    }
  */
 
-bool pinRead(uint8_t pin)
+bool MOVE_TO_FLASH pinRead(uint8_t pin)
 {
   bool value = GPIO_INPUT_GET(pin);
 
@@ -117,7 +117,7 @@ bool pinRead(uint8_t pin)
   return LOW;
 }
 
-void pinWrite(uint8_t pin, bool value)
+void MOVE_TO_FLASH pinWrite(uint8_t pin, bool value)
 {
   GPIO_OUTPUT_SET(pin, value & 0x01);
 }
@@ -127,7 +127,7 @@ void pinType(uint8_t pin, uint8_t type)
   PIN_FUNC_SELECT(_pinName(pin), type);
 }
 
-void pinMode(uint8_t pin, PinMode mode)
+void MOVE_TO_FLASH pinMode(uint8_t pin, PinMode mode)
 {
   uint32_t pinRegister = GPIO_PIN_ADDR(GPIO_ID_PIN(pin));
 
@@ -161,8 +161,8 @@ void pinMode(uint8_t pin, PinMode mode)
   }
 }
 
-bool isHigh(uint8_t pin) { return (gpio_input_get() >> pin) & BIT0; }
+bool MOVE_TO_FLASH isHigh(uint8_t pin) { return (gpio_input_get() >> pin) & BIT0; }
 
-bool isLow(uint8_t pin) { return !isHigh(pin); }
+bool MOVE_TO_FLASH isLow(uint8_t pin) { return !isHigh(pin); }
 
 #endif
