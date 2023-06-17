@@ -27,6 +27,7 @@
 #ifndef __I2C_MASTER_H__
 #define __I2C_MASTER_H__
 
+#include "pins.h"
 #include "c_types.h"
 #include "ets_sys.h"
 #include "gpio.h"
@@ -76,7 +77,7 @@ static void MOVE_TO_FLASH i2c_setDataAndClock(uint8_t SDA, uint8_t SCL)
   os_delay_us(5);
 }
 
-uint8_t MOVE_TO_FLASH i2c_getDC(void)
+uint8_t MOVE_TO_FLASH i2c_getDC()
 {
   return GPIO_INPUT_GET(GPIO_ID_PIN(dataPin));
 }
@@ -95,7 +96,7 @@ void MOVE_TO_FLASH i2c_stop()
   i2c_setDataAndClock(1, 1);
 }
 
-void MOVE_TO_FLASH i2c_init(void)
+void MOVE_TO_FLASH i2c_init()
 {
   uint8_t i;
 
@@ -115,25 +116,34 @@ void MOVE_TO_FLASH i2c_init(void)
   i2c_stop();
 }
 
-void MOVE_TO_FLASH i2c_gpio_init()
+void MOVE_TO_FLASH i2c_setup(uint8_t data, uint8_t clock)
 {
   ETS_GPIO_INTR_DISABLE();
+  clockPin = clock;
+  dataPin = data;
 
-  PIN_FUNC_SELECT(I2C_MASTER_SDA_MUX, I2C_MASTER_SDA_FUNC);
-  PIN_FUNC_SELECT(I2C_MASTER_SCL_MUX, I2C_MASTER_SCL_FUNC);
+  if (clockPin % 2 == 0)
+  {
+    pinType(clockPin, 0);
+  }
+  else
+  {
+    pinType(clockPin, 3);
+  }
 
-  GPIO_REG_WRITE(
-      GPIO_PIN_ADDR(GPIO_ID_PIN(dataPin)),
-      GPIO_REG_READ(GPIO_PIN_ADDR(GPIO_ID_PIN(dataPin))) |
-          GPIO_PIN_PAD_DRIVER_SET(GPIO_PAD_DRIVER_ENABLE)); // open drain
+  if (dataPin % 2 == 0)
+  {
+    pinType(dataPin, 0);
+  }
+  else
+  {
+    pinType(dataPin, 3);
+  }
 
-  GPIO_REG_WRITE(GPIO_ENABLE_ADDRESS, GPIO_REG_READ(GPIO_ENABLE_ADDRESS) | (1 << dataPin));
-  GPIO_REG_WRITE(
-      GPIO_PIN_ADDR(GPIO_ID_PIN(clockPin)),
-      GPIO_REG_READ(GPIO_PIN_ADDR(GPIO_ID_PIN(clockPin))) |
-          GPIO_PIN_PAD_DRIVER_SET(GPIO_PAD_DRIVER_ENABLE)); // open drain
-
-  GPIO_REG_WRITE(GPIO_ENABLE_ADDRESS, GPIO_REG_READ(GPIO_ENABLE_ADDRESS) | (1 << clockPin));
+  pinMode(dataPin, PinOpenDrain);
+  pinMode(dataPin, PinOutput);
+  pinMode(clockPin, PinOpenDrain);
+  pinMode(clock, PinOutput);
 
   dataHighClockHigh();
 
@@ -164,21 +174,25 @@ uint8_t MOVE_TO_FLASH i2c_getAck(void)
   return retVal;
 }
 
-bool MOVE_TO_FLASH i2c_checkAck(void)
+bool MOVE_TO_FLASH i2c_checkAck()
 {
   if (i2c_getAck())
   {
     return 0;
   }
-  else
-  {
-    return 1;
-  }
+
+  return 1;
 }
 
-void MOVE_TO_FLASH i2c_send_ack() { i2c_setAck(0x0); }
+void MOVE_TO_FLASH i2c_sendAck()
+{
+  i2c_setAck(0x0);
+}
 
-void MOVE_TO_FLASH i2c_send_nack() { i2c_setAck(0x1); }
+void MOVE_TO_FLASH i2c_sendNack()
+{
+  i2c_setAck(0x1);
+}
 
 uint8_t MOVE_TO_FLASH i2c_readByte()
 {
@@ -229,12 +243,37 @@ void MOVE_TO_FLASH i2c_writeByte(uint8_t byte)
   }
 }
 
-void MOVE_TO_FLASH i2c_writeByteAndAck(uint8_t byte)
+void MOVE_TO_FLASH i2c_writeBytes(uint8_t *bytes, int length)
 {
-  bool ack;
+  uint8_t index = 0;
+  uint8_t bit;
+  sint8_t i;
 
+  i2c_setDataAndClock(m_nLastSDA, 0);
+  while (index < length)
+  {
+    for (i = 7; i >= 0; i--)
+    {
+      bit = bytes[index] >> i;
+      i2c_setDataAndClock(bit, 0);
+      i2c_setDataAndClock(bit, 1);
+
+      if (i == 0)
+      {
+        os_delay_us(3);
+      }
+
+      i2c_setDataAndClock(bit, 0);
+    }
+
+    index++;
+  }
+}
+
+bool MOVE_TO_FLASH i2c_writeByteAndAck(uint8_t byte)
+{
   i2c_writeByte(byte);
-  ack = i2c_checkAck();
+  return i2c_checkAck();
 }
 
 void MOVE_TO_FLASH i2c_findDevices(uint8_t *devices)

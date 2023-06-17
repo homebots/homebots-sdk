@@ -127,8 +127,7 @@ bool MOVE_TO_FLASH Wifi::isConnected()
 void MOVE_TO_FLASH Wifi::printStationStatus()
 {
   uint8 clients = wifi_softap_get_station_num();
-  // LOG("SSID: %d\n", info->bssid);
-  LOG("#: %d\n", clients);
+  LOG("Clients: %d\n", clients);
 
   if (!clients)
   {
@@ -137,6 +136,7 @@ void MOVE_TO_FLASH Wifi::printStationStatus()
   }
 
   struct station_info *info = wifi_softap_get_station_info();
+
   union
   {
     uint32_t address;
@@ -145,6 +145,7 @@ void MOVE_TO_FLASH Wifi::printStationStatus()
 
   while (info != NULL)
   {
+    LOG("SSID: %d\n", info->bssid);
     LOG("IP: ");
     ip.address = info->ip.addr;
 
