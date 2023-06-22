@@ -34,11 +34,6 @@
 #include "osapi.h"
 #include "serial-debug.h"
 
-#define I2C_MASTER_SDA_MUX PERIPHS_IO_MUX_GPIO2_U
-#define I2C_MASTER_SCL_MUX PERIPHS_IO_MUX_GPIO0_U
-#define I2C_MASTER_SDA_FUNC FUNC_GPIO2
-#define I2C_MASTER_SCL_FUNC FUNC_GPIO0
-
 static uint8_t clockPin = 0;
 static uint8_t dataPin = 2;
 
@@ -252,9 +247,10 @@ void MOVE_TO_FLASH i2c_writeBytes(uint8_t *bytes, int length)
   i2c_setDataAndClock(m_nLastSDA, 0);
   while (index < length)
   {
+    auto byte = bytes[index];
     for (i = 7; i >= 0; i--)
     {
-      bit = bytes[index] >> i;
+      bit = byte >> i;
       i2c_setDataAndClock(bit, 0);
       i2c_setDataAndClock(bit, 1);
 
@@ -284,16 +280,7 @@ void MOVE_TO_FLASH i2c_findDevices(uint8_t *devices)
   {
     i2c_start();
     i2c_writeByte(i);
-
-    if (i2c_checkAck())
-    {
-      devices[i] = 1;
-    }
-    else
-    {
-      devices[0] = 1;
-    }
-
+    devices[i] = i2c_checkAck();
     i2c_stop();
   }
 }

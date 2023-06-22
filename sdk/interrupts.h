@@ -39,7 +39,6 @@ void _onInterruptTrigger()
   interruptCallbackHandler handler;
 
   GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, gpioStatus);
-  ETS_GPIO_INTR_DISABLE();
 
   for (pin = 0; pin < NUMBER_OF_PINS; pin++)
   {
@@ -49,8 +48,6 @@ void _onInterruptTrigger()
       handler(interruptArgs[pin], pin);
     }
   }
-
-  ETS_GPIO_INTR_ENABLE();
 }
 
 void MOVE_TO_FLASH detachPinInterrupt(uint8_t pin)
