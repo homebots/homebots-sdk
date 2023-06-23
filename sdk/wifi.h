@@ -204,7 +204,7 @@ void MOVE_TO_FLASH Wifi::startAccessPoint(const char *ssid)
 
 void MOVE_TO_FLASH Wifi::startAccessPoint(const char *ssid, const char *password)
 {
-  LOG("AP mode\n %s %s", ssid, password);
+  LOG("\nAccess point as %s %s\n", ssid, password);
   softap_config config;
 
   if (ssid == NULL)
@@ -214,7 +214,7 @@ void MOVE_TO_FLASH Wifi::startAccessPoint(const char *ssid, const char *password
 
   os_strcpy((char *)config.ssid, ssid);
 
-  LOG("SSID %s\n", config.ssid);
+  LOG("SSID is '%s'\n", config.ssid);
 
   config.ssid_len = strlen(ssid);
   config.channel = 6;
@@ -223,17 +223,16 @@ void MOVE_TO_FLASH Wifi::startAccessPoint(const char *ssid, const char *password
   {
     config.authmode = AUTH_WPA2_PSK;
     os_strcpy((char *)config.password, password);
-    LOG("PWD %s\n", config.password);
+    LOG("PWD is '%s'\n", config.password);
   }
   else
   {
     config.authmode = AUTH_OPEN;
     *config.password = 0;
-    LOG("Open Wifi mode\n");
   }
 
   config.ssid_hidden = 0;
-  config.max_connection = 4;
+  config.max_connection = 32;
   config.beacon_interval = 100;
 
   ETS_UART_INTR_DISABLE();
