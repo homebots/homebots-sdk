@@ -1,27 +1,6 @@
-# Extensions to ESP Non-OS SDK
+# Extensions to ESP Non-OS SDK for HomeBots
 
-These are the additions to the [xtensa-gcc image](https://github.com/homebots/docker-xtensa-gcc)
-
-## Usage
-
-See some example projects [here](https://github.com/homebots/esp8266-examples) or [here](https://github.com/esp8266/source-code-examples/blob/master/blinky/user/user_main.c)
-
-## Project structure
-
-A project looks like this:
-
-```
--- Makefile
--- src/
- |-- index.cpp
- |
--- includes/
- |-- lib.h
- |-- other-lib.h
-
-```
-
-You can check the tests folder for samples of how to use the project.
+These are additions to the [xtensa-gcc image](https://github.com/homebots/docker-xtensa-gcc)
 
 ### Build and flash
 
@@ -62,6 +41,28 @@ esptool.py vx.y
 make flash
 
 // or specify a serial port to flash
-ESP_PORT=/dev/tty.usbserialport make flash
+ESP_PORT=/dev/ttyUSB0 make flash
 
 ```
+
+## Usage
+
+See some example projects [here](https://github.com/homebots/esp8266-examples) or [here](https://github.com/esp8266/source-code-examples/blob/master/blinky/user/user_main.c)
+
+## Project structure
+
+A project looks like this:
+
+```
+-- Makefile
+-- src/
+ |-- index.cpp
+ |
+-- includes/
+ |-- lib.h
+ |-- other-lib.h
+
+```
+
+You can check the tests folder for samples of how to use the project.
+
